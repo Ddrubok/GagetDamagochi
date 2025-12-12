@@ -1,0 +1,6 @@
+apply plugin: 'com.android.library'
+android {
+    namespace 'com.ddrubok.wegetgame.widget'
+    compileSdkVersion 34
+    defaultConfig { minSdkVersion 24 }
+}
