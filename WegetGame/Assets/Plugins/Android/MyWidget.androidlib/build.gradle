@@ -1,6 +1,15 @@
 apply plugin: 'com.android.library'
-android {
-    namespace 'com.ddrubok.wegetgame.widget'
-    compileSdkVersion 34
+android { 
+    namespace 'com.ddrubok.wegetgame.widget' 
+    compileSdkVersion 34 
     defaultConfig { minSdkVersion 24 }
+    
+    // 소스 경로 명시 (혹시 모를 인식 오류 방지)
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+        }
+    }
 }

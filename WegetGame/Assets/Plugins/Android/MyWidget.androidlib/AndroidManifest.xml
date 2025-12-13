@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" 
     package="com.ddrubok.wegetgame.widget"> 
+    
     <application>
-        <receiver android:name="com.ddrubok.wegetgame.TinyCapsuleWidget" android:exported="true">
+        <receiver android:name="com.ddrubok.wegetgame.TinyCapsuleWidget" 
+                  android:exported="true"
+                  tools:node="merge">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.ddrubok.wegetgame.ACTION_WIDGET_UPDATE" />

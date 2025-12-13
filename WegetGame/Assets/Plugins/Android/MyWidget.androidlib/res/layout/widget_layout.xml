@@ -4,5 +4,6 @@
     android:background="#ffffff" android:padding="8dp">
     <TextView android:id="@+id/widget_text" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:layout_centerInParent="true"
-        android:text="Hello Tiny Capsule!" android:textColor="#000000" android:textSize="20sp" />
+        android:text="WegetGame 위젯" android:textColor="#000000" android:textSize="18sp"
+        android:textStyle="bold" />
 </RelativeLayout>

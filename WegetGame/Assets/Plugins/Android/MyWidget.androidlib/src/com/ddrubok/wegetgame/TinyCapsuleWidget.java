@@ -28,6 +28,8 @@ public class TinyCapsuleWidget extends AppWidgetProvider {
                 JSONObject data = new JSONObject(json);
                 views.setTextViewText(textId, "상태: " + data.optString("state"));
             } catch (Exception e) { views.setTextViewText(textId, "Err"); }
+        } else {
+            views.setTextViewText(textId, "WegetGame Ready");
         }
         try {
             appWidgetManager.updateAppWidget(new android.content.ComponentName(context, TinyCapsuleWidget.class), views);
