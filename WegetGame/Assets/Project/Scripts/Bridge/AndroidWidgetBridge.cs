@@ -1,82 +1,84 @@
-using UnityEngine;
-using System.IO;
+Ôªøusing UnityEngine;
+using UnityEngine.UI;
 
 public class AndroidWidgetBridge : MonoBehaviour
 {
-    // ΩÃ±€≈Ê ∆–≈œ ¿˚øÎ
-    public static AndroidWidgetBridge Instance;
+    public Text debugText; // ÌôîÎ©¥ ÎîîÎ≤ÑÍπÖÏö© (ÏÑ†ÌÉù)
 
-    // æ’º≠ º≥¡§«— Package Name∞˙ ¡§»Æ»˜ ¿œƒ°«ÿæﬂ «‘
-    private const string PACKAGE_NAME = "com.ddrubok.wegetgame";
-    private const string FILE_NAME = "widget_data.json";
+    // ÏñëÌååÏùò ÏÇ¨Îûë ÏßÄÏàò (-100 ~ 100)
+    private int loveScore = 0;
 
-    private void Awake()
+    // [Î≤ÑÌäº 1] "ÏÇ¨ÎûëÌï¥" Î≤ÑÌäºÏóê Ïó∞Í≤∞
+    public void OnClick_Praise()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-
-        DontDestroyOnLoad(gameObject); // æ¿¿Ã πŸ≤ÓæÓµµ ¿Ø¡ˆ
+        loveScore += 10;
+        if (loveScore > 100) loveScore = 100;
+        SendOnionState();
     }
 
-    // ≈◊Ω∫∆ÆøÎ: ∞‘¿” Ω√¿€ Ω√ µ•¿Ã≈Õ «—π¯ ∫∏≥ª∫∏±‚
-    private void Start()
+    // [Î≤ÑÌäº 2] "ÎØ∏ÏõåÌï¥" Î≤ÑÌäºÏóê Ïó∞Í≤∞
+    public void OnClick_Scold()
     {
-        UpdateWidgetState("IDLE", 80);
+        loveScore -= 10;
+        if (loveScore < -100) loveScore = -100;
+        SendOnionState();
     }
 
-    public void UpdateWidgetState(string state, int hunger)
+    private void SendOnionState()
     {
-        // 1. µ•¿Ã≈Õ ∞¥√º ª˝º∫
-        CapsuleData data = new CapsuleData();
-        data.state = state;
-        data.hunger = hunger;
-        data.lastInteractionTime = System.DateTimeOffset.Now.ToUnixTimeSeconds();
+        string state = "NORMAL";
+        string message = "ÏñëÌååÎäî ÌèâÎ≤îÌï¥.";
 
-        // 2. JSON ∫Ø»Ø
-        string json = JsonUtility.ToJson(data);
+        // Ï†êÏàòÏóê Îî∞Îùº ÏÉÅÌÉú Í≤∞Ï†ï
+        if (loveScore >= 30)
+        {
+            state = "HAPPY";
+            message = $"ÌñâÎ≥µÌïú ÏñëÌåå (Lv.{loveScore})";
+        }
+        else if (loveScore <= -30)
+        {
+            state = "SAD";
+            message = $"ÏÉÅÏ≤òÎ∞õÏùÄ ÏñëÌåå (Lv.{loveScore})";
+        }
 
-        // 3. ∆ƒ¿œ∑Œ ¿˙¿Â & ¿ß¡¨ ∞ªΩ≈ ø‰√ª
-        SendToAndroid(json);
+        UpdateWidget(state, message, loveScore);
     }
 
-    private void SendToAndroid(string jsonString)
+    public void UpdateWidget(string state, string message, int score)
     {
-        // ¿Ø¥œ∆º ø°µ≈Õø°º≠¥¬ æ»µÂ∑Œ¿ÃµÂ ±‚¥…¿Ã µø¿€«œ¡ˆ æ ¿∏π«∑Œ øπø‹ √≥∏Æ
+        // JSON Îç∞Ïù¥ÌÑ∞ ÏÉùÏÑ±
+        string jsonString = JsonUtility.ToJson(new WidgetData { state = state, message = message, score = score });
+
+        if (debugText != null) debugText.text = $"Ï†ÑÏÜ°: {message}";
+
 #if UNITY_ANDROID && !UNITY_EDITOR
         try
         {
-            // A. æ»µÂ∑Œ¿ÃµÂ ≥ª∫Œ ¿˙¿Âº“ø° ∆ƒ¿œ æ≤±‚
-            // Unity¿« persistentDataPath∏¶ ªÁøÎ«œµ«, ≥™¡ﬂø° Native ¬ ø°º≠ ¿–¿ª ºˆ ¿÷∞‘ ∞Ê∑Œ º≥∞Ë « ø‰
-            // ø©±‚º≠¥¬ ∞°¿Â ¥‹º¯«œ∞‘ Unity Activity∏¶ ≈Î«ÿ Intent∑Œ µ•¿Ã≈Õ∏¶ Ω«æÓ ∫∏≥¿¥œ¥Ÿ.
-            // (∆ƒ¿œ ∞¯¿Ø πÊΩƒ¿∫ ±««— πÆ¡¶∞° ∫π¿‚«œπ«∑Œ, √ ±‚ ¥‹∞Ëø°º± Intent πÊΩƒ √ﬂ√µ)
-
             using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
             using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
             using (AndroidJavaObject context = currentActivity.Call<AndroidJavaObject>("getApplicationContext"))
+            using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent"))
             {
-                // B. πÊº€(Broadcast) ∫∏≥ª±‚
-                // "æﬂ! TinyCapsule µ•¿Ã≈Õ ∞ªΩ≈µ∆æÓ!"∂Û∞Ì æ»µÂ∑Œ¿ÃµÂ Ω√Ω∫≈€ø° º“∏Æƒß
-                using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent"))
-                {
-                    // ¿Ã Action πÆ¿⁄ø≠¿∫ AndroidManifest.xmlø° µÓ∑œµ… øπ¡§
-                    intent.Call<AndroidJavaObject>("setAction", PACKAGE_NAME + ".ACTION_WIDGET_UPDATE");
-                    
-                    // JSON µ•¿Ã≈Õ∏¶ Intent∂Û¥¬ ∫¿≈ıø° ≥÷¿Ω
-                    intent.Call<AndroidJavaObject>("putExtra", "EXTRA_DATA_JSON", jsonString);
-                    
-                    // πÊº€ º€√‚
-                    context.Call("sendBroadcast", intent);
-                }
+                string packageName = "com.ddrubok.wegetgame";
+                // Î™ÖÏãúÏ†Å Ïù∏ÌÖêÌä∏ (ÏïÑÍπå ÏÑ±Í≥µÌñàÎçò Î∞©Ïãù)
+                intent.Call<AndroidJavaObject>("setClassName", packageName, packageName + ".TinyCapsuleWidget");
+                intent.Call<AndroidJavaObject>("setAction", packageName + ".ACTION_WIDGET_UPDATE");
+                intent.Call<AndroidJavaObject>("putExtra", "EXTRA_DATA_JSON", jsonString);
+                
+                context.Call("sendBroadcast", intent);
             }
-            
-            Debug.Log($"[Bridge] Sent Broadcast: {jsonString}");
         }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[Bridge] Error: {e.Message}");
-        }
+        catch (System.Exception e) { if(debugText) debugText.text = "Error: " + e.Message; }
 #else
-        Debug.Log($"[Editor Mock] Android Broadcast Sent: {jsonString}");
+        Debug.Log($"[Editor] {jsonString}");
 #endif
+    }
+
+    [System.Serializable]
+    class WidgetData
+    {
+        public string state;
+        public string message;
+        public int score;
     }
 }
