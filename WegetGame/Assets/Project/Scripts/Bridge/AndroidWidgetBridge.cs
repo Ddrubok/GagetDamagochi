@@ -6,8 +6,7 @@ using System.Text;
 
 public class AndroidWidgetBridge : MonoBehaviour
 {
-    [Header("구글 API 키")]
-    public string apiKey = "여기에_키를_붙여넣으세요";
+    private string apiKey = "";
 
     [Header("UI 연결")]
     public Text debugText;
@@ -37,6 +36,11 @@ public class AndroidWidgetBridge : MonoBehaviour
         if (btnScold) btnScold.interactable = false;
 
         if (debugText) debugText.text = "양파(Exp)가 생각 중... 🧅💭";
+
+        if(apiKey== "")
+        {
+            LoadApiKey();
+        }
 
         // URL 조립
         string finalUrl = $"{API_URL}?key={apiKey.Trim()}";
@@ -81,6 +85,23 @@ public class AndroidWidgetBridge : MonoBehaviour
         // 버튼 해제
         if (btnPraise) btnPraise.interactable = true;
         if (btnScold) btnScold.interactable = true;
+    }
+
+    void LoadApiKey()
+    {
+        // 1. Resources 폴더의 'GeminiKey.txt' 파일을 읽어옵니다.
+        TextAsset keyFile = Resources.Load<TextAsset>("GeminiKey");
+
+        if (keyFile != null)
+        {
+            apiKey = keyFile.text.Trim();
+            Debug.Log("🔑 API 키 로드 성공!");
+        }
+        else
+        {
+            Debug.LogError("🚨 'Assets/Resources/GeminiKey.txt' 파일을 찾을 수 없습니다!");
+            // (파일을 안 만들었을 때 경고)
+        }
     }
 
     // 결과 해석 및 위젯 업데이트
