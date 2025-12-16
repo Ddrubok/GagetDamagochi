@@ -62,6 +62,9 @@ sysinfo.txt
 *.unitypackage
 *.app
 
+GeminiKey.txt
+GeminiKey.txt.meta
+
 # Crashlytics generated file
 crashlytics-build.properties
 
