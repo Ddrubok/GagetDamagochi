@@ -1,130 +1,130 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using System.Collections;
-using System.Threading.Tasks;
-using Unity.InferenceEngine.Samples.Chat; // [중요] LlavaRunner가 있는 네임스페이스
+using System.Text;
 
 public class AndroidWidgetBridge : MonoBehaviour
 {
+    [Header("구글 API 키")]
+    public string apiKey = "여기에_키를_붙여넣으세요";
+
     [Header("UI 연결")]
     public Text debugText;
     public Button btnPraise;
     public Button btnScold;
 
-    [Header("설정")]
-    private const string PACKAGE_NAME = "com.ddrubok.wegetgame"; // 패키지명 확인!
+    private const string PACKAGE_NAME = "com.ddrubok.wegetgame";
     private int loveScore = 0;
 
-    // [핵심] Sentis AI 실행기
-    private LlavaRunner m_LlavaRunner;
-    private Texture2D m_DummyImage; // 모델이 이미지를 요구하므로 가짜 이미지 사용
+    // 목록에 있던 'gemini-flash-latest' 사용 (가장 안정적이고 무료 할당량이 많음)
+    private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
 
-    async void Start()
+    // 양파 성격 설정
+    private string systemPrompt =
+        "너는 스마트폰에 사는 귀여운 '양파 쿵야'야. " +
+        "한국어로 20자 이내로 짧고 재치 있게 대답해. " +
+        "말끝마다 '양!'을 붙여. " +
+        "칭찬은 {HAPPY}, 비난은 {SAD} 태그를 앞에 붙여.";
+
+    public void OnClick_Praise() { StartCoroutine(ChatWithGemini("우리 양파 최고야! 사랑해!")); }
+    public void OnClick_Scold() { StartCoroutine(ChatWithGemini("야! 썩은 양파! 저리 가!")); }
+
+    IEnumerator ChatWithGemini(string userMessage)
     {
-        // 1. AI 모델 로딩 (비동기)
-        if (debugText) debugText.text = "AI 뇌를 깨우는 중...";
+        // 버튼 잠금
+        if (btnPraise) btnPraise.interactable = false;
+        if (btnScold) btnScold.interactable = false;
 
-        // 약간의 딜레이 후 초기화 (UI 끊김 방지)
-        await Task.Delay(100);
+        if (debugText) debugText.text = "양파(Exp)가 생각 중... 🧅💭";
 
-        try
+        // URL 조립
+        string finalUrl = $"{API_URL}?key={apiKey.Trim()}";
+
+        // JSON 데이터
+        string jsonBody = "{ \"contents\": [{ \"parts\": [{ \"text\": \"" + systemPrompt + "\\n\\nUser: " + userMessage + "\" }] }] }";
+
+        using (UnityWebRequest request = new UnityWebRequest(finalUrl, "POST"))
         {
-            m_LlavaRunner = new LlavaRunner(lazyInit: false);
-            m_DummyImage = new Texture2D(2, 2); // 빈 이미지 생성
-            if (debugText) debugText.text = "양파가 깨어났습니다! (준비 완료)";
-        }
-        catch (System.Exception e)
-        {
-            if (debugText) debugText.text = $"모델 로딩 실패: {e.Message}\n파일 위치를 확인하세요.";
-            Debug.LogError(e);
-        }
-    }
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
 
-    // [버튼 1] 칭찬하기 -> AI에게 "사랑해" 전송
-    public async void OnClick_Praise()
-    {
-        await ChatWithOnion("주인님: 우리 양파 정말 착하고 귀여워! 사랑해!", 10);
-    }
+            // SSL 우회 (필수)
+            request.certificateHandler = new BypassCertificate();
 
-    // [버튼 2] 혼내기 -> AI에게 "미워" 전송
-    public async void OnClick_Scold()
-    {
-        await ChatWithOnion("주인님: 야! 너 왜 말을 안 들어! 저리 가!", -10);
-    }
+            yield return request.SendWebRequest();
 
-    // [핵심 로직] AI와 대화하고 위젯 업데이트
-    private async Task ChatWithOnion(string userMessage, int scoreChange)
-    {
-        if (m_LlavaRunner == null) return;
-
-        // 버튼 잠시 비활성화 (중복 클릭 방지)
-        btnPraise.interactable = false;
-        btnScold.interactable = false;
-        if (debugText) debugText.text = "양파가 생각하는 중... 🧅💭";
-
-        string fullResponse = "";
-
-        try
-        {
-            // 2. AI에게 질문 던지기 (이미지는 더미, 텍스트는 유저 메시지)
-            // LlavaRunner가 System Prompt(양파 설정)를 자동으로 적용해 줍니다.
-            var tokenStream = m_LlavaRunner.GetPredictionTokenAsync(m_DummyImage, userMessage);
-
-            // 3. 답변 한 글자씩 받기 (스트리밍)
-            await foreach (var token in tokenStream)
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                string word = m_LlavaRunner.Config.Tokenizer.Decode(new[] { token });
-                fullResponse += word;
-                // (선택) 화면에 실시간으로 답변이 써지는 효과를 줄 수 있음
-                if (debugText) debugText.text = fullResponse;
+                // 429 에러가 뜨면 잠시 기다리라는 안내 표시
+                if (request.responseCode == 429)
+                {
+                    if (debugText) debugText.text = "양파가 너무 바빠요 (30초 후 다시!)";
+                    Debug.LogError("API 요청 한도 초과 (429). 잠시 대기 후 시도하세요.");
+                }
+                else
+                {
+                    string errorMsg = $"오류: {request.downloadHandler.text}";
+                    Debug.LogError(errorMsg);
+                    if (debugText) debugText.text = "통신 실패 (콘솔 확인)";
+                }
+            }
+            else
+            {
+                // 성공!
+                ParseAndApplyResponse(request.downloadHandler.text);
             }
         }
-        catch (System.Exception e)
+
+        // 버튼 해제
+        if (btnPraise) btnPraise.interactable = true;
+        if (btnScold) btnScold.interactable = true;
+    }
+
+    // 결과 해석 및 위젯 업데이트
+    void ParseAndApplyResponse(string json)
+    {
+        string reply = "알 수 없음";
+
+        int start = json.IndexOf("\"text\": \"");
+        if (start != -1)
         {
-            Debug.LogError($"AI 생성 중 오류: {e.Message}");
-            fullResponse = "으앙 머리가 아파양... (오류)";
+            start += 9;
+            int end = json.IndexOf("\"", start);
+            if (end > start)
+            {
+                reply = json.Substring(start, end - start).Replace("\\n", "\n").Replace("\\\"", "\"");
+            }
         }
 
-        // 4. 감정 태그 분석 ({HAPPY}, {SAD} 찾기)
+        // 감정 분석
         string state = "NORMAL";
-
-        if (fullResponse.Contains("{HAPPY}"))
+        if (reply.Contains("{HAPPY}"))
         {
             state = "HAPPY";
-            loveScore += 10; // 점수 증가
-            fullResponse = fullResponse.Replace("{HAPPY}", "").Trim(); // 태그는 안 보이게 삭제
+            loveScore += 10;
+            reply = reply.Replace("{HAPPY}", "").Trim();
         }
-        else if (fullResponse.Contains("{SAD}"))
+        else if (reply.Contains("{SAD}"))
         {
             state = "SAD";
-            loveScore -= 10; // 점수 감소
-            fullResponse = fullResponse.Replace("{SAD}", "").Trim();
-        }
-        else
-        {
-            // 태그가 없으면 점수 변화에 따라 자동 결정
-            loveScore += scoreChange;
-            if (loveScore >= 30) state = "HAPPY";
-            if (loveScore <= -30) state = "SAD";
+            loveScore -= 10;
+            reply = reply.Replace("{SAD}", "").Trim();
         }
 
-        // 점수 범위 제한 (-100 ~ 100)
         loveScore = Mathf.Clamp(loveScore, -100, 100);
 
-        // 5. 위젯으로 최종 결과 전송
-        UpdateWidget(state, fullResponse, loveScore);
-
-        // 버튼 다시 활성화
-        btnPraise.interactable = true;
-        btnScold.interactable = true;
+        // 화면과 위젯에 반영
+        UpdateWidget(state, reply, loveScore);
     }
 
     public void UpdateWidget(string state, string message, int score)
     {
-        // JSON 포장 및 안드로이드 브로드캐스트 전송 (기존과 동일)
         string jsonString = JsonUtility.ToJson(new WidgetData { state = state, message = message, score = score });
 
-        if (debugText) debugText.text = $"[전송 완료]\n{message}";
+        if (debugText) debugText.text = message;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
         try
@@ -142,14 +142,13 @@ public class AndroidWidgetBridge : MonoBehaviour
         }
         catch (System.Exception e) { if(debugText) debugText.text = "위젯 전송 실패: " + e.Message; }
 #else
-        Debug.Log($"[Editor] 위젯 전송 시뮬레이션: {jsonString}");
+        Debug.Log($"[위젯 전송] {message} (점수: {score})");
 #endif
     }
 
-    void OnDestroy()
+    class BypassCertificate : CertificateHandler
     {
-        // 메모리 누수 방지를 위해 꼭 정리해야 함
-        m_LlavaRunner?.Dispose();
+        protected override bool ValidateCertificate(byte[] certificateData) => true;
     }
 
     [System.Serializable]

@@ -1146,6 +1146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae80f3814aee3014898b1641d934c483, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndroidWidgetBridge
+  apiKey: AIzaSyA1_9XQmMOnKDl80RrdCZxQuzPsB1-vjUk
   debugText: {fileID: 958705639}
   btnPraise: {fileID: 478875650}
   btnScold: {fileID: 801479192}
