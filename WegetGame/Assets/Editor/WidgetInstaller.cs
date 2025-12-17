@@ -106,6 +106,16 @@ public class TinyCapsuleWidget extends AppWidgetProvider {{
 <manifest xmlns:android=""http://schemas.android.com/apk/res/android""
     xmlns:tools=""http://schemas.android.com/tools"" 
     package=""{PACKAGE_NAME}.widget""> 
+
+    <uses-permission android:name=""android.permission.INTERNET"" />
+    <uses-permission android:name=""android.permission.RECORD_AUDIO"" />
+
+    <queries>
+        <intent>
+            <action android:name=""android.speech.RecognitionService"" />
+        </intent>
+    </queries>
+
     <application>
         <receiver android:name=""{PACKAGE_NAME}.TinyCapsuleWidget"" 
                   android:exported=""true""
