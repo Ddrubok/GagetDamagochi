@@ -6,7 +6,7 @@ public class VoiceManager : MonoBehaviour
 {
     public Text debugText;       // 상태 표시용
     public Button btnMic;        // 마이크 버튼
-    public AndroidWidgetBridge bridge;
+    public GameManager gameManager;
 
     private AndroidJavaObject speechRecognizer;
     private AndroidJavaObject recognizerIntent;
@@ -143,7 +143,7 @@ public class VoiceManager : MonoBehaviour
         isListening = false;
         UpdateDebug("인식 성공: " + result);
 
-        if (bridge) bridge.SendMessageToGemini(result);
+        if (gameManager) gameManager.OnReceiveVoice(result);
         else UpdateDebug("경고: Bridge 연결 안 됨");
     }
 
