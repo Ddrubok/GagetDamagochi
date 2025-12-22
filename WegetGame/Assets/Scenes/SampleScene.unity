@@ -1777,9 +1777,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1316814609}
   - component: {fileID: 1316814611}
-  - component: {fileID: 1316814614}
-  - component: {fileID: 1316814613}
-  - component: {fileID: 1316814612}
   m_Layer: 0
   m_Name: BridgeManager
   m_TagString: Untagged
@@ -1817,58 +1814,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VoiceManager
   debugText: {fileID: 1063512486}
   btnMic: {fileID: 409385222}
-  gameManager: {fileID: 1316814614}
---- !u!114 &1316814612
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316814605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8159ca8c3f67e94290b24ea99fcee1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GeminiNetwork
---- !u!114 &1316814613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316814605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2797c9be999a68b459d1edd0fbe54bf1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WidgetBridge
---- !u!114 &1316814614
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316814605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db418eb79de96dd4bb3631f053d1ceab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  network: {fileID: 1316814612}
-  widget: {fileID: 1316814613}
-  chatInput: {fileID: 1031471026}
-  btnSend: {fileID: 1519251852}
-  btnFeed: {fileID: 478875650}
-  debugText: {fileID: 958705639}
-  statusText: {fileID: 270020138}
-  myData:
-    level: 1
-    exp: 0
-    hunger: 100
-    loveScore: 0
-    evolutionStage: Baby
-    lastLoginTime: 
-    lastMessage: 
+  gameManager: {fileID: 0}
 --- !u!1 &1360089008
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,6 +14,10 @@ public class VoiceManager : MonoBehaviour
 
     void Start()
     {
+        if(gameManager ==null)
+        {
+            gameManager = Managers.Game;
+        }
         UpdateDebug("앱 시작: 권한 체크 중...");
 
         // 1. 마이크 권한 요청
