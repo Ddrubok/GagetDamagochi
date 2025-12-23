@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Android;
+using TMPro; // 안드로이드 권한용
 
 public class VoiceManager : MonoBehaviour
 {
-    public Text debugText;       // 상태 표시용
+    [Header("UI 연결 (인스펙터에서 드래그)")]
+    public TextMeshProUGUI debugText;       // 디버그용 텍스트
     public Button btnMic;        // 마이크 버튼
+
+    // 게임 매니저 (자동으로 찾음)
     public GameManager gameManager;
 
     private AndroidJavaObject speechRecognizer;
@@ -14,21 +18,18 @@ public class VoiceManager : MonoBehaviour
 
     void Start()
     {
-        if(gameManager ==null)
+        // ✅ 매니저 연결 (Managers.Game이 싱글톤으로 존재하므로 안전함)
+        if (gameManager == null)
         {
             gameManager = Managers.Game;
         }
+
         UpdateDebug("앱 시작: 권한 체크 중...");
 
         // 1. 마이크 권한 요청
         if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
         {
             Permission.RequestUserPermission(Permission.Microphone);
-            UpdateDebug("권한 요청 팝업 띄움");
-        }
-        else
-        {
-            UpdateDebug("권한 이미 허용됨 OK");
         }
 
         // 2. 안드로이드 음성 인식기 준비
@@ -38,34 +39,27 @@ public class VoiceManager : MonoBehaviour
         }
         else
         {
-            UpdateDebug("PC에서는 마이크 안 됨 (폰에서만 가능)");
+            UpdateDebug("PC/에디터에서는 마이크 안 됨 (폰에서만 가능)");
         }
 
-        // 3. 버튼 연결
+        // 3. 버튼 리스너 연결
         if (btnMic != null)
         {
+            btnMic.onClick.RemoveAllListeners(); // 중복 방지
             btnMic.onClick.AddListener(ToggleListening);
-            UpdateDebug("마이크 버튼 연결 완료");
-        }
-        else
-        {
-            UpdateDebug("🚨 경고: 마이크 버튼이 연결 안 됨!");
         }
     }
 
     void InitializeSpeechRecognizer()
     {
-        // 안드로이드 UI 스레드에서 생성해야 안전합니다.
         RunOnUIThread(() => {
             try
             {
                 AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
                 AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
                 AndroidJavaObject context = activity.Call<AndroidJavaObject>("getApplicationContext");
-
                 AndroidJavaClass speechClass = new AndroidJavaClass("android.speech.SpeechRecognizer");
 
-                // 여기서 인식기를 만듭니다.
                 speechRecognizer = speechClass.CallStatic<AndroidJavaObject>("createSpeechRecognizer", context);
 
                 if (speechRecognizer != null)
@@ -77,25 +71,15 @@ public class VoiceManager : MonoBehaviour
                     recognizerIntent.Call<AndroidJavaObject>("putExtra", "android.speech.extra.LANGUAGE_MODEL", "free_form");
                     recognizerIntent.Call<AndroidJavaObject>("putExtra", "android.speech.extra.LANGUAGE", "ko-KR");
 
-                    UpdateDebug("음성 인식기 준비 완료 (Ready)");
-                }
-                else
-                {
-                    // 만약 여전히 null이면, 폰에 'Google' 앱이 없거나 비활성화된 상태입니다.
-                    UpdateDebug("🚨 인식기 생성 실패: Google 앱이 설치되어 있나요?");
+                    UpdateDebug("음성 인식 준비 완료");
                 }
             }
-            catch (System.Exception e)
-            {
-                UpdateDebug("🚨 초기화 에러: " + e.Message);
-            }
+            catch (System.Exception e) { UpdateDebug("초기화 에러: " + e.Message); }
         });
     }
 
     public void ToggleListening()
     {
-        UpdateDebug("버튼 눌림!"); // 버튼 반응 확인용
-
         if (isListening) StopListening();
         else StartListening();
     }
@@ -105,21 +89,10 @@ public class VoiceManager : MonoBehaviour
         if (speechRecognizer != null)
         {
             RunOnUIThread(() => {
-                try
-                {
-                    speechRecognizer.Call("startListening", recognizerIntent);
-                    UpdateDebug("듣는 중... 말씀하세요! 🎤");
-                }
-                catch (System.Exception e)
-                {
-                    UpdateDebug("시작 에러: " + e.Message);
-                }
+                speechRecognizer.Call("startListening", recognizerIntent);
+                UpdateDebug("듣는 중... 말씀하세요! 🎤");
             });
             isListening = true;
-        }
-        else
-        {
-            UpdateDebug("오류: 인식기가 없습니다.");
         }
     }
 
@@ -128,15 +101,8 @@ public class VoiceManager : MonoBehaviour
         if (speechRecognizer != null)
         {
             RunOnUIThread(() => {
-                try
-                {
-                    speechRecognizer.Call("stopListening");
-                    UpdateDebug("듣기 중지");
-                }
-                catch (System.Exception e)
-                {
-                    UpdateDebug("중지 에러: " + e.Message);
-                }
+                speechRecognizer.Call("stopListening");
+                UpdateDebug("듣기 중지");
             });
             isListening = false;
         }
@@ -145,30 +111,25 @@ public class VoiceManager : MonoBehaviour
     public void OnResult(string result)
     {
         isListening = false;
-        UpdateDebug("인식 성공: " + result);
+        UpdateDebug("인식: " + result);
 
-        if (gameManager) gameManager.OnReceiveVoice(result);
-        else UpdateDebug("경고: Bridge 연결 안 됨");
+        // ✅ 매니저에게 텍스트 전달 -> Gemini와 대화 시작!
+        if (gameManager != null) gameManager.OnReceiveVoice(result);
     }
 
     public void OnError(int error)
     {
         isListening = false;
-        string msg = "에러 코드: " + error;
-
-        // 자주 발생하는 에러 코드 해석
-        if (error == 7) msg += " (인식 결과 없음)";
-        else if (error == 6) msg += " (음성 입력 없음)";
-        else if (error == 9) msg += " (권한 부족)";
-
+        string msg = "에러: " + error;
+        if (error == 7) msg = "인식된 내용이 없어요.";
+        else if (error == 6) msg = "말씀이 없으셨어요.";
         UpdateDebug(msg);
     }
 
     void UpdateDebug(string msg)
     {
         if (debugText) debugText.text = msg;
-        // 로그캣에서도 볼 수 있게
-        Debug.Log("[VoiceManager] " + msg);
+        Debug.Log("[Voice] " + msg);
     }
 
     void RunOnUIThread(System.Action action)

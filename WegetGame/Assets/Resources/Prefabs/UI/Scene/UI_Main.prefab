@@ -1033,6 +1033,7 @@ GameObject:
   - component: {fileID: 862231216791829060}
   - component: {fileID: 3554966352461278131}
   - component: {fileID: 3690915248953175268}
+  - component: {fileID: 2187250049367469029}
   m_Layer: 5
   m_Name: UI_Main
   m_TagString: Untagged
@@ -1131,6 +1132,21 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2187250049367469029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7163503015103486872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d63d8ca76782d94293d614948d097f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoiceManager
+  debugText: {fileID: 6776538021409027930}
+  btnMic: {fileID: 5303721459075918759}
+  gameManager: {fileID: 0}
 --- !u!1 &7356333565604293536
 GameObject:
   m_ObjectHideFlags: 0
