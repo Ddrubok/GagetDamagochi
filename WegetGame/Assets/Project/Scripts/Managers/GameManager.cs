@@ -32,8 +32,9 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
 
-        Widget=gameObject.GetComponent<WidgetBridge>();
-        Network= gameObject.GetComponent<GeminiNetwork>();
+        Widget=gameObject.AddComponent<WidgetBridge>();
+        Network= gameObject.AddComponent<GeminiNetwork>();
+        Network.InitKey();
 
         Hunger = PlayerPrefs.GetInt("Hunger", 50);
         LoveScore = PlayerPrefs.GetInt("LoveScore", 0);

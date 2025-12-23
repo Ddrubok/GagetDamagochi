@@ -24,8 +24,6 @@ public class DataManager
 {
 
     public Dictionary<int, Data.TestData> TestDic { get; private set; } = new Dictionary<int, Data.TestData>();
-    public Dictionary<int, GachaGradeInfoData> GachaGradeInfoDataDic { get; private set; } = new Dictionary<int, Data.GachaGradeInfoData>();
-    public SortedDictionary<int, ItemOptionUpgradeData> ItemOptionUpgradeDataDic { get; private set; } = new SortedDictionary<int, Data.ItemOptionUpgradeData>();
 
     public int GotchaSize { get; private set; } 
 
@@ -34,14 +32,6 @@ public class DataManager
     public void Init()
     {
       
-        GachaGradeInfoDataDic = CreateDictionaryFromList(ReadCsv<GachaGradeInfoData>("GachaGradeInfo"), ga => ga.GachaID);
-        ItemOptionUpgradeDataDic = CreateSortedDictionaryDictionaryFromList(ReadCsv<ItemOptionUpgradeData>("ItemOptionUpgrade"), ga => ga.UpgradeBelowLimit);
-        GotchaSize = GachaGradeInfoDataDic.Count;
-
-        foreach (var items in GachaGradeInfoDataDic)
-        {
-            items.Value.SetData();
-        }
         Debug.Log("게임 데이터 로드 완료");
     }
 

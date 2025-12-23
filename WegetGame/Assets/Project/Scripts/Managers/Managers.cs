@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Managers : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class Managers : MonoBehaviour
         get
         {
             if (s_instance == null)
-                Init(); 
+                Init();
             return s_instance;
         }
     }
@@ -25,6 +26,7 @@ public class Managers : MonoBehaviour
     private UIManager _ui;
     private ObjectManager _object;
     private PoolManager _pool;
+    private SceneManager _sceneManager;
 
     public static GameManager Game { get { return Instance?._game; } }
     public static DataManager Data { get { return Instance?._data; } }
@@ -35,6 +37,8 @@ public class Managers : MonoBehaviour
     public static ObjectManager Object { get { return Instance?._object; } }
 
     public static PoolManager Pool { get { return Instance?._pool; } }
+
+    public static SceneManager Scene { get { return Instance?._sceneManager; } }
 
     #endregion
 
