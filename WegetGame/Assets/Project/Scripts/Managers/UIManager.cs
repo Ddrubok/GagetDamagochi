@@ -35,7 +35,10 @@ public class UIManager
         Canvas canvas = Util.GetOrAddComponent<Canvas>(go);
         if (canvas != null)
         {
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = Camera.main;
+            canvas.planeDistance = 100;
+
             canvas.overrideSorting = true;
         }
 
