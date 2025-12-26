@@ -15,6 +15,7 @@ public class UI_Main : UI_Scene
     enum Texts
     {
         OnionDebug,
+        Status,
         VoiceDebug
     }
 
@@ -69,6 +70,6 @@ public class UI_Main : UI_Scene
         int hunger = Managers.Game.Hunger;
         int love = Managers.Game.LoveScore;
 
-        GetTextMesh((int)Texts.VoiceDebug).text = $"배고픔: {hunger} / 호감도: {love}";
+        GetTextMesh((int)Texts.Status).text = $"배고픔: {hunger} / 호감도: {love}";
     }
 }
