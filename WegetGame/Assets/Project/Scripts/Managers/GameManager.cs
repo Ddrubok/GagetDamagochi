@@ -32,8 +32,8 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
 
-        Widget=gameObject.AddComponent<WidgetBridge>();
-        Network= gameObject.AddComponent<GeminiNetwork>();
+        Widget = gameObject.AddComponent<WidgetBridge>();
+        Network = gameObject.AddComponent<GeminiNetwork>();
         Network.InitKey();
 
         Hunger = PlayerPrefs.GetInt("Hunger", 50);
@@ -69,12 +69,15 @@ public class GameManager : MonoBehaviour
 
     public void OnReceiveVoice(string text)
     {
+
+        if (MyCat)
+            MyCat.ChangeState(CatState.LISTENING);
         ProcessChat(text);
     }
 
     public void ProcessChat(string userMsg, Action<string> onComplete = null)
     {
-        if (Network == null) { Debug.LogError("❌ Network가 연결되지 않았습니다! 인스펙터를 확인하세요."); return; }
+        if (Network == null) { Debug.LogError("Network가 연결되지 않았습니다! 인스펙터를 확인하세요."); return; }
 
         if (MyCat) MyCat.ChangeState(CatState.THINKING);
 
@@ -82,7 +85,8 @@ public class GameManager : MonoBehaviour
 
         Network.SendChat(prompt, userMsg, (reply) =>
         {
-            CatState reaction = CatState.TALKING;
+            CatState reaction = CatState.TALKING; 
+
             if (reply.Contains("{HAPPY}"))
             {
                 reaction = CatState.HAPPY_PURR;
@@ -97,12 +101,21 @@ public class GameManager : MonoBehaviour
             }
 
             if (MyCat) MyCat.ChangeState(reaction);
-            if (Widget) Widget.SendToWidget(reaction.ToString(), reply, LoveScore);
+
+            UI_Main ui = Managers.UI.GetSceneUI<UI_Main>();
+            if (ui != null)
+            {
+                ui.ShowBubble(reply, 3.0f);
+            }
 
             Save();
             onComplete?.Invoke(reply);
         },
-        (err) => { Debug.LogError("통신 에러: " + err); });
+        (err) =>
+        {
+            Debug.LogError("통신 에러");
+            if (MyCat) MyCat.ChangeState(CatState.IDLE_SIT); // 에러나면 기본 상태로 복귀
+        });
     }
 
     string GetSystemPrompt()
