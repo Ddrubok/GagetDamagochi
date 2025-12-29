@@ -1,56 +1,26 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Android;
-using TMPro; // 안드로이드 권한용
+using UnityEngine.Android; // 안드로이드 권한용
+using TMPro; // TextMeshPro 사용
+using System.Runtime.InteropServices; // iOS 플러그인용
 
 public class VoiceManager : MonoBehaviour
 {
-    [Header("UI 연결 (인스펙터에서 드래그)")]
-    public TextMeshProUGUI debugText;       // 디버그용 텍스트
-    public Button btnMic;        // 마이크 버튼
-
-    // 게임 매니저 (자동으로 찾음)
+    [Header("UI 연결")]
+    public TextMeshProUGUI debugText;
+    public Button btnMic;
     public GameManager gameManager;
 
-    private AndroidJavaObject speechRecognizer;
-    private AndroidJavaObject recognizerIntent;
     private bool isListening = false;
 
-    void Start()
-    {
-        // ✅ 매니저 연결 (Managers.Game이 싱글톤으로 존재하므로 안전함)
-        if (gameManager == null)
-        {
-            gameManager = Managers.Game;
-        }
+    // =========================================================
+    // 📱 1. 안드로이드 전용 변수 & 함수
+    // =========================================================
+#if UNITY_ANDROID
+    private AndroidJavaObject speechRecognizer;
+    private AndroidJavaObject recognizerIntent;
 
-        UpdateDebug("앱 시작: 권한 체크 중...");
-
-        // 1. 마이크 권한 요청
-        if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
-        {
-            Permission.RequestUserPermission(Permission.Microphone);
-        }
-
-        // 2. 안드로이드 음성 인식기 준비
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            InitializeSpeechRecognizer();
-        }
-        else
-        {
-            UpdateDebug("PC/에디터에서는 마이크 안 됨 (폰에서만 가능)");
-        }
-
-        // 3. 버튼 리스너 연결
-        if (btnMic != null)
-        {
-            btnMic.onClick.RemoveAllListeners(); // 중복 방지
-            btnMic.onClick.AddListener(ToggleListening);
-        }
-    }
-
-    void InitializeSpeechRecognizer()
+    void InitializeAndroid() // 이름을 이걸로 통일했습니다!
     {
         RunOnUIThread(() => {
             try
@@ -71,20 +41,14 @@ public class VoiceManager : MonoBehaviour
                     recognizerIntent.Call<AndroidJavaObject>("putExtra", "android.speech.extra.LANGUAGE_MODEL", "free_form");
                     recognizerIntent.Call<AndroidJavaObject>("putExtra", "android.speech.extra.LANGUAGE", "ko-KR");
 
-                    UpdateDebug("음성 인식 준비 완료");
+                    UpdateDebug("안드로이드 음성 인식 준비 완료");
                 }
             }
             catch (System.Exception e) { UpdateDebug("초기화 에러: " + e.Message); }
         });
     }
 
-    public void ToggleListening()
-    {
-        if (isListening) StopListening();
-        else StartListening();
-    }
-
-    void StartListening()
+    void StartListeningAndroid()
     {
         if (speechRecognizer != null)
         {
@@ -96,7 +60,7 @@ public class VoiceManager : MonoBehaviour
         }
     }
 
-    void StopListening()
+    void StopListeningAndroid()
     {
         if (speechRecognizer != null)
         {
@@ -108,37 +72,7 @@ public class VoiceManager : MonoBehaviour
         }
     }
 
-    public void OnResult(string result)
-    {
-        isListening = false;
-        UpdateDebug("인식: " + result);
-
-        // ✅ 매니저에게 텍스트 전달 -> Gemini와 대화 시작!
-        if (gameManager != null) gameManager.OnReceiveVoice(result);
-    }
-
-    public void OnError(int error)
-    {
-        isListening = false;
-        string msg = "에러: " + error;
-        if (error == 7) msg = "인식된 내용이 없어요.";
-        else if (error == 6) msg = "말씀이 없으셨어요.";
-        UpdateDebug(msg);
-    }
-
-    void UpdateDebug(string msg)
-    {
-        if (debugText) debugText.text = msg;
-        Debug.Log("[Voice] " + msg);
-    }
-
-    void RunOnUIThread(System.Action action)
-    {
-        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-        activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
-    }
-
+    // 안드로이드 콜백용 프록시 클래스
     class RecognitionListenerProxy : AndroidJavaProxy
     {
         private VoiceManager manager;
@@ -157,5 +91,127 @@ public class VoiceManager : MonoBehaviour
         public void onEndOfSpeech() { }
         public void onPartialResults(AndroidJavaObject partialResults) { }
         public void onEvent(int eventType, AndroidJavaObject param) { }
+    }
+#endif
+
+    // =========================================================
+    // 🍎 2. iOS 전용 변수 & 함수 (네이티브 플러그인 연결)
+    // =========================================================
+#if UNITY_IOS
+    [DllImport("__Internal")]
+    private static extern void _StartListening();
+    [DllImport("__Internal")]
+    private static extern void _StopListening();
+    
+    // iOS에서 초기화는 보통 StartListening 시점에 하거나 필요시 _Init() 함수를 추가합니다.
+#endif
+
+    public void IOS_OnError(string error)
+    {
+        isListening = false;
+        UpdateDebug("에러(iOS): " + error);
+    }
+
+    // =========================================================
+    // 🎮 3. 공통 로직 (Start, 버튼 이벤트 등)
+    // =========================================================
+    void Start()
+    {
+        if (gameManager == null) gameManager = Managers.Game;
+
+        UpdateDebug("앱 시작: 마이크 준비 중...");
+
+        // 권한 요청 (안드로이드)
+#if UNITY_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
+            Permission.RequestUserPermission(Permission.Microphone);
+
+        InitializeAndroid(); // ✅ 이제 이 함수가 존재하므로 에러가 나지 않습니다.
+#endif
+
+        // 버튼 연결
+        if (btnMic != null)
+        {
+            btnMic.onClick.RemoveAllListeners();
+            btnMic.onClick.AddListener(ToggleListening);
+        }
+    }
+
+    public void ToggleListening()
+    {
+        if (isListening) StopListening();
+        else StartListening();
+    }
+
+    void StartListening()
+    {
+#if UNITY_ANDROID
+        StartListeningAndroid();
+#elif UNITY_IOS
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            _StartListening(); 
+            isListening = true;
+            UpdateDebug("듣는 중... (iOS)");
+        }
+#else
+        UpdateDebug("PC에서는 마이크를 사용할 수 없습니다.");
+#endif
+    }
+
+    void StopListening()
+    {
+#if UNITY_ANDROID
+        StopListeningAndroid();
+#elif UNITY_IOS
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            _StopListening(); // iOS 플러그인 호출
+            isListening = false;
+            UpdateDebug("iOS 듣기 중지");
+        }
+#endif
+    }
+
+    // 결과 처리 (안드로이드/iOS 공통)
+    public void OnResult(string result)
+    {
+        isListening = false;
+        UpdateDebug("인식 결과: " + result);
+
+        if (gameManager != null) gameManager.OnReceiveVoice(result);
+    }
+
+    public void OnError(int error)
+    {
+        isListening = false;
+        string msg = "에러: " + error;
+        if (error == 7) msg = "인식된 내용이 없어요.";
+        else if (error == 6) msg = "말씀이 없으셨어요.";
+        UpdateDebug(msg);
+    }
+
+    // iOS에서 유니티로 메시지 보낼 때 사용 (UnitySendMessage)
+    public void IOS_OnResult(string result)
+    {
+        isListening = false;
+        UpdateDebug("인식(iOS): " + result);
+        if (gameManager != null) gameManager.OnReceiveVoice(result);
+    }
+
+    // 디버그 및 스레드 유틸
+    void UpdateDebug(string msg)
+    {
+        if (debugText) debugText.text = msg;
+        Debug.Log("[Voice] " + msg);
+    }
+
+    void RunOnUIThread(System.Action action)
+    {
+#if UNITY_ANDROID
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
+#endif
     }
 }
