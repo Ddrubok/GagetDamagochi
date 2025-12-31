@@ -68,7 +68,7 @@ public class UI_Main : UI_Scene
         Managers.Game.Hunger += 30; GetTextMesh((int)Texts.OnionDebug).text = "냠냠! 밥 맛있다냥!";
 
         if (Managers.Game.MyCat != null)
-            Managers.Game.MyCat.ChangeState(Define.CatState.EATING);
+            Managers.Game.MyCat.ChangeState(Define.CatState.Eat);
     }
 
     void RefreshUI(int val)
@@ -102,6 +102,6 @@ public class UI_Main : UI_Scene
 
         // 고양이 상태도 IDLE로 복귀 요청 (매니저가 있다면)
         if (Managers.Game.MyCat != null)
-            Managers.Game.MyCat.ChangeState(Define.CatState.IDLE_SIT);
+            Managers.Game.MyCat.ChangeState(Define.CatState.Idle);
     }
 }

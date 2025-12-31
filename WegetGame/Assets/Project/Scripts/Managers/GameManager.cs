@@ -36,6 +36,29 @@ public class GameManager : MonoBehaviour
     public string LastLoginTime;
     #endregion
 
+
+    public CatBreed MyBreed;
+    public CatPersonality MyPersonality;
+
+    // 🎲 고양이 뽑기 (초기 생성 시 1회 호출)
+    public void GachaCat()
+    {
+        // 1. 종 뽑기 (랜덤)
+        Array breeds = Enum.GetValues(typeof(CatBreed));
+        MyBreed = (CatBreed)breeds.GetValue(UnityEngine.Random.Range(0, breeds.Length));
+
+        // 2. 성격 뽑기 (랜덤)
+        Array personalities = Enum.GetValues(typeof(CatPersonality));
+        MyPersonality = (CatPersonality)personalities.GetValue(UnityEngine.Random.Range(0, personalities.Length));
+
+        Debug.Log($"🎉 축하합니다! 당신의 고양이는 [{MyBreed}] 종이며, 성격은 [{MyPersonality}] 입니다!");
+
+        // 3. 데이터 저장
+        Save();
+
+        // 4. 고양이 외형/애니메이션 적용 (CatController에게 알림)
+        //if (MyCat != null) MyCat.SetCatVisual(MyBreed, MyPersonality);
+    }
     public void Init()
     {
 
@@ -78,7 +101,7 @@ public class GameManager : MonoBehaviour
     {
 
         if (MyCat)
-            MyCat.ChangeState(CatState.LISTENING);
+            MyCat.ChangeState(CatState.Listening);
         ProcessChat(text);
     }
 
@@ -86,23 +109,23 @@ public class GameManager : MonoBehaviour
     {
         if (Network == null) { Debug.LogError("Network가 연결되지 않았습니다! 인스펙터를 확인하세요."); return; }
 
-        if (MyCat) MyCat.ChangeState(CatState.THINKING);
+        if (MyCat) MyCat.ChangeState(CatState.Thinking);
 
         string prompt = GetSystemPrompt();
 
         Network.SendChat(prompt, userMsg, (reply) =>
         {
-            CatState reaction = CatState.TALKING; 
+            CatState reaction = CatState.Talking; 
 
             if (reply.Contains("{HAPPY}"))
             {
-                reaction = CatState.HAPPY_PURR;
+                reaction = CatState.Happy;
                 LoveScore += 5;
                 reply = reply.Replace("{HAPPY}", "").Trim();
             }
             else if (reply.Contains("{SAD}"))
             {
-                reaction = CatState.ANGRY_HISS;
+                reaction = CatState.Angry;
                 LoveScore -= 5;
                 reply = reply.Replace("{SAD}", "").Trim();
             }
@@ -121,7 +144,7 @@ public class GameManager : MonoBehaviour
         (err) =>
         {
             Debug.LogError("통신 에러");
-            if (MyCat) MyCat.ChangeState(CatState.IDLE_SIT); // 에러나면 기본 상태로 복귀
+            if (MyCat) MyCat.ChangeState(CatState.Idle); // 에러나면 기본 상태로 복귀
         });
     }
 

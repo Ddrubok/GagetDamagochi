@@ -6,7 +6,7 @@ using static Define;
 public class CatController : BaseController
 {
     private Animator _animator;
-    private CatState _currentState = CatState.IDLE_SIT;
+    private CatState _currentState = CatState.Idle;
 
     public override bool Init()
     {
@@ -15,7 +15,7 @@ public class CatController : BaseController
 
         _animator = GetComponent<Animator>();
 
-        ChangeState(CatState.IDLE_SIT);
+        ChangeState(CatState.Idle);
 
         return true;
     }
