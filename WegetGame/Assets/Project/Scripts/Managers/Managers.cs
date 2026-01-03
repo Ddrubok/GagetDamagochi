@@ -58,7 +58,8 @@ public class Managers : MonoBehaviour
             // 초기화
             s_instance = go.GetComponent<Managers>();
 
-            s_instance._game = go.GetOrAddComponent<GameManager>();
+            s_instance._game = new GameManager();
+           // s_instance._game = go.GetOrAddComponent<GameManager>();
             s_instance._data = new DataManager();
             s_instance._resource = new ResourceManager();
             s_instance._sound = s_instance.AddComponent<SoundManager>();

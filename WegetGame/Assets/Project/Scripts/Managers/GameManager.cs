@@ -2,7 +2,7 @@
 using UnityEngine;
 using static Define;
 
-public class GameManager : MonoBehaviour
+public class GameManager
 {
 
     [Header("Game Settings")]
@@ -57,13 +57,14 @@ public class GameManager : MonoBehaviour
         Save();
 
         // 4. 고양이 외형/애니메이션 적용 (CatController에게 알림)
-        //if (MyCat != null) MyCat.SetCatVisual(MyBreed, MyPersonality);
+        if (MyCat != null) MyCat.SetCatVisual(MyBreed, MyPersonality);
     }
     public void Init()
     {
 
-        Widget = gameObject.AddComponent<WidgetBridge>();
-        Network = gameObject.AddComponent<GeminiNetwork>();
+        GameObject go = Managers.Instance.gameObject;
+        Widget = Util.GetOrAddComponent<WidgetBridge>(go);
+        Network = Util.GetOrAddComponent<GeminiNetwork>(go);
         Network.InitKey();
 
         Hunger = PlayerPrefs.GetInt("Hunger", 50);
