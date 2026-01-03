@@ -40,8 +40,11 @@ public class Define
 
         // --- °¨Á¤ Ç¥Çö ---
         Happy,      // ±â»Ý (ÄªÂù¹ÞÀ½)
+        Sad,
         Angry,      // È­³²/»ßÁü (È¥³²)
-        Sick        // ¾ÆÇÄ (¹è°íÇÄ 0ÀÏ ¶§)
+        Sick,        // ¾ÆÇÄ (¹è°íÇÄ 0ÀÏ ¶§)
+        Play,
+        Sleepy
     }
 
     public enum EScene

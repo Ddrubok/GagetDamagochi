@@ -210,8 +210,8 @@ public class VoiceManager : MonoBehaviour
     {
 #if UNITY_ANDROID
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-        activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
+        //AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        //activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
 #endif
     }
 }
