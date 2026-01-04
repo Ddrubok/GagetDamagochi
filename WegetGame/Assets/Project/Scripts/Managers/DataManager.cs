@@ -20,19 +20,63 @@ public interface ILoader<Value>
     void GetData();
 }
 
+[Serializable]
+public class GameData
+{
+    public string catName = "나비";
+    public int level = 1;
+    public int loveScore = 0;
+    public int hunger = 50;
+    public CatBreed myBreed = CatBreed.Cheese;
+    public CatPersonality myPersonality = CatPersonality.Normal;
+    public string lastExitTime; // 오프라인 시간 계산용
+    public string evolutionStage;
+}
+
 public class DataManager
 {
 
     public Dictionary<int, Data.TestData> TestDic { get; private set; } = new Dictionary<int, Data.TestData>();
 
-    public int GotchaSize { get; private set; } 
+    public int GotchaSize { get; private set; }
 
-    
+    public GameData CurrentData { get; private set; } = new GameData();
+
+    private string _savePath => Path.Combine(Application.persistentDataPath, "SaveData.json");
 
     public void Init()
     {
-      
-        Debug.Log("게임 데이터 로드 완료");
+
+        LoadGame();
+
+        Debug.Log("Managers.Data Init 완료");
+    }
+
+    public void SaveGame()
+    {
+        CurrentData.lastExitTime = DateTime.Now.ToString();
+
+        string json = JsonUtility.ToJson(CurrentData, true);
+
+        File.WriteAllText(_savePath, json);
+        Debug.Log($"게임 저장됨: {_savePath}");
+    }
+
+    public void LoadGame()
+    {
+        if (!File.Exists(_savePath))
+        {
+            CurrentData = new GameData();
+            CurrentData.lastExitTime = DateTime.Now.ToString();
+            SaveGame();
+            Debug.Log("세이브 파일이 없어 새로 생성했습니다.");
+            return;
+        }
+
+        string json = File.ReadAllText(_savePath);
+
+        CurrentData = JsonUtility.FromJson<GameData>(json);
+        Debug.Log("게임 불러오기 성공!");
     }
 
     //private Loader LoadJson<Loader, Key, Value>(string path) where Loader : ILoader<Key, Value>

@@ -70,6 +70,13 @@ public class Managers : MonoBehaviour
             s_instance._game.Init();
         }
     }
+    void OnApplicationPause(bool pause)
+    {
+        if (pause)
+        {
+            Game.Save(); 
+        }
+    }
 
     private void OnApplicationQuit()
     {
@@ -78,5 +85,6 @@ public class Managers : MonoBehaviour
             s_instance = null;
             Destroy(gameObject);
         }
+        Game.Save();
     }
 }

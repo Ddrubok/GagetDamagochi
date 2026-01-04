@@ -14,7 +14,6 @@ public class GeminiNetwork : MonoBehaviour
         StartCoroutine(RoutineChat(prompt, userMessage, onComplete, onFail));
     }
 
-    // 초기화 (키 로드)
     public void InitKey()
     {
         TextAsset keyFile = Resources.Load<TextAsset>("GeminiKey");
