@@ -79,6 +79,16 @@ public class DataManager
         Debug.Log("게임 불러오기 성공!");
     }
 
+    public void ResetData()
+    {
+        CurrentData = new GameData(); // 깡통 데이터로 교체
+        CurrentData.lastExitTime = DateTime.Now.ToString();
+
+        SaveGame(); // 덮어쓰기
+
+        Debug.Log("[Debug] 데이터가 초기화되었습니다.");
+    }
+
     //private Loader LoadJson<Loader, Key, Value>(string path) where Loader : ILoader<Key, Value>
     //{
     //    TextAsset textAsset = Managers.Resource.Load<TextAsset>("Data\\" + path);

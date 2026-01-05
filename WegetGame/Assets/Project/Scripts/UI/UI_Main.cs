@@ -13,7 +13,8 @@ public class UI_Main : UI_Scene
     enum Buttons
     {
         Feed,
-        Send
+        Send,
+        BtnDebug
     }
 
     enum Texts
@@ -40,7 +41,7 @@ public class UI_Main : UI_Scene
         Bind<TMP_InputField>(typeof(InputFields));
         GetButton((int)Buttons.Feed).gameObject.BindEvent(OnClick_Feed);
         GetButton((int)Buttons.Send).gameObject.BindEvent(OnClick_Send);
-
+        GetButton((int)Buttons.BtnDebug).gameObject.BindEvent(OnClickDebug);
         Managers.Game.OnHungerChanged += RefreshUI;
         Managers.Game.OnLoveScoreChanged += RefreshUI;
 
@@ -69,6 +70,12 @@ public class UI_Main : UI_Scene
 
         if (Managers.Game.MyCat != null)
             Managers.Game.MyCat.ChangeState(Define.CatState.Eat);
+    }
+
+    void OnClickDebug(PointerEventData evt)
+    {
+        // ÆË¾÷ ¶ç¿ì±â
+        Managers.UI.ShowPopupUI<UI_Debug>("Prefabs/UI/PopUp/UI_Debug");
     }
 
     void RefreshUI(int val)
