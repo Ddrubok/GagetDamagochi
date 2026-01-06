@@ -39,8 +39,8 @@ public class UI_Main : UI_Scene
         Bind<Button>(typeof(Buttons));
         Bind<TextMeshProUGUI>(typeof(Texts));
         Bind<TMP_InputField>(typeof(InputFields));
-        GetButton((int)Buttons.Feed).gameObject.BindEvent(OnClick_Feed);
-        GetButton((int)Buttons.Send).gameObject.BindEvent(OnClick_Send);
+        //GetButton((int)Buttons.Feed).gameObject.BindEvent(OnClick_Feed);
+        //GetButton((int)Buttons.Send).gameObject.BindEvent(OnClick_Send);
         GetButton((int)Buttons.BtnDebug).gameObject.BindEvent(OnClickDebug);
         Managers.Game.OnHungerChanged += RefreshUI;
         Managers.Game.OnLoveScoreChanged += RefreshUI;
@@ -83,7 +83,7 @@ public class UI_Main : UI_Scene
         int hunger = Managers.Game.Hunger;
         int love = Managers.Game.LoveScore;
 
-        GetTextMesh((int)Texts.Status).text = $"배고픔: {hunger} / 호감도: {love}";
+        //GetTextMesh((int)Texts.Status).text = $"배고픔: {hunger} / 호감도: {love}";
     }
 
     public void ShowBubble(string text, float duration = 3.0f)

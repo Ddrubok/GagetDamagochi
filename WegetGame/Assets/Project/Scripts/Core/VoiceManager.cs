@@ -22,7 +22,8 @@ public class VoiceManager : MonoBehaviour
 
     void InitializeAndroid() // 이름을 이걸로 통일했습니다!
     {
-        RunOnUIThread(() => {
+        RunOnUIThread(() =>
+        {
             try
             {
                 AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -52,7 +53,8 @@ public class VoiceManager : MonoBehaviour
     {
         if (speechRecognizer != null)
         {
-            RunOnUIThread(() => {
+            RunOnUIThread(() =>
+            {
                 speechRecognizer.Call("startListening", recognizerIntent);
                 UpdateDebug("듣는 중... 말씀하세요! 🎤");
             });
@@ -64,7 +66,8 @@ public class VoiceManager : MonoBehaviour
     {
         if (speechRecognizer != null)
         {
-            RunOnUIThread(() => {
+            RunOnUIThread(() =>
+            {
                 speechRecognizer.Call("stopListening");
                 UpdateDebug("듣기 중지");
             });
@@ -126,7 +129,7 @@ public class VoiceManager : MonoBehaviour
         if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
             Permission.RequestUserPermission(Permission.Microphone);
 
-        InitializeAndroid(); // ✅ 이제 이 함수가 존재하므로 에러가 나지 않습니다.
+        InitializeAndroid(); //이제 이 함수가 존재하므로 에러가 나지 않습니다.
 #endif
 
         // 버튼 연결
@@ -143,7 +146,7 @@ public class VoiceManager : MonoBehaviour
         else StartListening();
     }
 
-    void StartListening()
+    public void StartListening()
     {
 #if UNITY_ANDROID
         StartListeningAndroid();
@@ -210,8 +213,8 @@ public class VoiceManager : MonoBehaviour
     {
 #if UNITY_ANDROID
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        //AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-        //activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
+        AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
 #endif
     }
 }

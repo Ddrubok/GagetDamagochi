@@ -180,7 +180,7 @@ public class AndroidWidgetBridge : MonoBehaviour
                 context.Call("sendBroadcast", intent);
             }
         }
-        catch (System.Exception e) {}
+        catch (System.Exception e) { Debug.Log(e);}
 #endif
     }
 
