@@ -17,7 +17,8 @@ public class UI_Debug : UI_Popup
 
     enum Texts
     {
-        TextInfo // 현재 수치 표시용
+        TextInfo, // 현재 수치 표시용
+        TextVoiceLog   //음성 상태 로그 표시용
     }
 
     public override bool Init()
@@ -54,6 +55,11 @@ public class UI_Debug : UI_Popup
             $"Love: {Managers.Game.LoveScore}\n" +
             $"State: {Managers.Game.CurrentState}\n" +
             $"Cat: {Managers.Game.MyBreed}/{Managers.Game.MyPersonality}";
+
+        VoiceManager voice = Managers.Instance.GetComponent<VoiceManager>();
+        string voiceMsg = (voice != null) ? voice.LastLog : "VoiceManager Not Found";
+
+        GetTextMesh((int)Texts.TextVoiceLog).text = $"[VOICE LOG]\n<color=yellow>{voiceMsg}</color>";
     }
 
     // --- 기능 구현 ---

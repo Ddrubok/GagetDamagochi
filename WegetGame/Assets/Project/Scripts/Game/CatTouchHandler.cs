@@ -20,7 +20,11 @@ public class CatTouchHandler : MonoBehaviour, IPointerClickHandler
             Managers.Game.MyCat.ChangeState(Define.CatState.Listening);
         }
 
-        VoiceManager voice = Managers.Instance.GetComponent<VoiceManager>();
+        //VoiceManager voice = Managers.Instance.GetComponent<VoiceManager>();
+
+        VoiceManager voice = Util.GetOrAddComponent<VoiceManager>(Managers.Instance.gameObject);
+
+        voice.Init();
 
         if (voice != null)
         {

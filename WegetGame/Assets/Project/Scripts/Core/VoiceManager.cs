@@ -13,6 +13,8 @@ public class VoiceManager : MonoBehaviour
 
     private bool isListening = false;
 
+    public string LastLog { get; private set; } = "대기 중...";
+
     // =========================================================
     // 📱 1. 안드로이드 전용 변수 & 함수
     // =========================================================
@@ -120,6 +122,11 @@ public class VoiceManager : MonoBehaviour
     // =========================================================
     void Start()
     {
+
+    }
+
+    public void Init()
+    {
         if (gameManager == null) gameManager = Managers.Game;
 
         UpdateDebug("앱 시작: 마이크 준비 중...");
@@ -139,6 +146,7 @@ public class VoiceManager : MonoBehaviour
             btnMic.onClick.AddListener(ToggleListening);
         }
     }
+
 
     public void ToggleListening()
     {
@@ -205,16 +213,19 @@ public class VoiceManager : MonoBehaviour
     // 디버그 및 스레드 유틸
     void UpdateDebug(string msg)
     {
+        LastLog = msg; // ✅ 여기에 최신 메시지 저장!
+
         if (debugText) debugText.text = msg;
         Debug.Log("[Voice] " + msg);
     }
 
     void RunOnUIThread(System.Action action)
     {
-#if UNITY_ANDROID
+#if UNITY_ANDROID&&!UNITY_EDITOR
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
         activity.Call("runOnUiThread", new AndroidJavaRunnable(action));
 #endif
     }
+
 }
