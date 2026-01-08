@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Runtime.InteropServices; 
 
 public class WidgetBridge : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class WidgetBridge : MonoBehaviour
             // 키-값 쌍으로 저장 (JSON 통째로 보내거나, 나눠서 보내거나)
             _SaveToSharedGroup("GameState", state);
             _SaveToSharedGroup("GameMessage", message);
-            _SaveToSharedGroup("GameJson", json); // 전체 데이터도 백업용으로 저장
+            _SaveToSharedGroup("GameJson", jsonString); // 전체 데이터도 백업용으로 저장
 
             // 위젯 새로고침 명령
             _ReloadWidget();
