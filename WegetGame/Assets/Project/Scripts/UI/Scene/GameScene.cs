@@ -10,8 +10,12 @@ public class GameScene : BaseScene
 
         Managers.Data.Init();
         Managers.UI.ShowSceneUI<UI_Main>("Prefabs/UI/Scene/UI_Main");
+       //CatController cat = FindFirstObjectByType<CatController>();
 
-        CatController cat = FindFirstObjectByType<CatController>();
+       CatController cat = Managers.Object
+
+
+
         if (cat != null)
         {
             Managers.Game.MyCat = cat;

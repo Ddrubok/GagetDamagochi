@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class UIManager
 {
-    private int _order = 10;
+    private int _order = -3;
 
     private Stack<UI_Popup> _popupStack = new Stack<UI_Popup>();
 
@@ -79,7 +79,7 @@ public class UIManager
         Canvas canvas = go.GetOrAddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.worldCamera = Camera.main;
-
+        
         return Util.GetOrAddComponent<T>(go);
     }
 
