@@ -56,13 +56,15 @@ public class ObjectManager
         Object.Destroy(obj.gameObject);
     }
 
-    private GameObject GetPrefab(string name)
+    private GameObject GetPrefab(string name,bool IsObject=true)
     {
         if (_prefabCache.TryGetValue(name, out GameObject prefab))
             return prefab;
 
-        prefab = Resources.Load<GameObject>($"Prefabs/{name}");
-
+        if(IsObject)
+        prefab = Resources.Load<GameObject>($"Prefabs/Objects/{name}");
+        else
+            prefab = Resources.Load<GameObject>($"Prefabs/{name}");
         if (prefab == null)
             prefab = Resources.Load<GameObject>(name);
 

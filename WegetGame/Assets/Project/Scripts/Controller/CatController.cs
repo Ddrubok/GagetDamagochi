@@ -8,13 +8,17 @@ public class CatController : BaseController
     private Animator _animator;
     private CatState _currentState = CatState.Idle;
 
+    [Header("Movement Settings")]
+    [SerializeField] private float _moveSpeed = 2.0f;
+    [SerializeField] private Vector2 _minRoomPos = new Vector2(-2, -2); [SerializeField] private Vector2 _maxRoomPos = new Vector2(2, 2);
+    private float _stateTimer = 0f; private Vector3 _targetPosition; private SpriteRenderer _spriteRenderer;
     public CatState CurrentState
     {
         get { return _currentState; }
         set
         {
             if (_currentState == value) return;
-            
+
             _currentState = value;
             ChangeState(_currentState);
         }
@@ -25,8 +29,9 @@ public class CatController : BaseController
         if (base.Init() == false)
             return false;
 
-        _animator = Util.GetOrAddComponent<Animator>(gameObject);
+        _animator = Util.GetOrAddComponent<Animator>(Util.FindChild(gameObject, "Animation", true));
 
+        _spriteRenderer = _animator.GetComponent<SpriteRenderer>();
         SetCatVisual(CatBreed.Cheese, CatPersonality.Normal);
 
         ChangeState(_currentState);
@@ -36,9 +41,38 @@ public class CatController : BaseController
 
     public void ChangeState(CatState newState)
     {
+        switch (newState)
+        {
+            case CatState.Idle:
+                _stateTimer = Random.Range(2.0f, 4.0f); 
+                PlayAnimByState(CatState.Idle);
+                break;
+
+            case CatState.Walk:
+                PlayAnimByState(CatState.Walk);
+                break;
+
+            case CatState.Sleep:
+                _stateTimer = Random.Range(5.0f, 10.0f); 
+                PlayAnimByState(CatState.Sleep);
+                break;
+
+            case CatState.Play:
+                _stateTimer = 3.0f; 
+                PlayAnimByState(CatState.Play);
+                break;
+
+            default:
+                PlayAnimByState(newState);
+                break;
+        }
+    }
+
+    void PlayAnimByState(CatState state)
+    {
         string animName = "Idle1";
 
-        switch (newState)
+        switch (state)
         {
             case CatState.Idle:
                 animName = GetRandomIdleAnim();
@@ -48,21 +82,35 @@ public class CatController : BaseController
                 animName = GetWeightedBoxAnim();
                 break;
 
-            case CatState.Listening: animName = "Idle2"; break;
-            case CatState.Thinking: animName = "Waiting"; break;
-            case CatState.Talking: animName = "Surprised"; break;
+            case CatState.Listening: animName = "Idle2"; 
+                break;
+            case CatState.Thinking: animName = "Waiting"; 
+                break;
+            case CatState.Talking: animName = "Surprised"; 
+                break;
 
-            case CatState.Sleep: animName = "Sleep"; break;
-            case CatState.Eat: animName = "Eating"; break;
+            case CatState.Sleep: animName = "Sleep"; 
+                break;
+            case CatState.Eat: animName = "Eating"; 
+                break;
 
-            case CatState.Happy: animName = "Dance"; break;
-            case CatState.Angry: animName = "Sad"; break;
+            case CatState.Happy: animName = "Dance"; 
+                break;
+            case CatState.Angry: animName = "Sad"; 
+                break;
 
-            case CatState.Sad: animName = "Cry"; break;
-            case CatState.Sleepy: animName = "Sleepy"; break;
+            case CatState.Sad: animName = "Cry"; 
+                break;
+            case CatState.Sleepy: animName = "Sleepy"; 
+                break;
 
-            case CatState.Sick: animName = "LayDown"; break;
-            case CatState.None: animName = "DeadCat"; break;
+            case CatState.Sick: animName = "LayDown"; 
+                break;
+            case CatState.None: animName = "DeadCat";
+                break;
+
+            case CatState.Walk: animName = "Walk"; 
+                break;
         }
 
         _animator.CrossFade(animName, 0.1f);
@@ -92,8 +140,6 @@ public class CatController : BaseController
 
     public void SetCatVisual(CatBreed breed, CatPersonality personal)
     {
-        // 1. 리소스 폴더에서 오버라이드 컨트롤러 불러오기
-        // 파일 이름 규칙: "Cat_Cheese", "Cat_Black" 등
         string path = $"Animators/{breed}/{personal}";
 
         RuntimeAnimatorController newController = Resources.Load<RuntimeAnimatorController>(path);
@@ -111,6 +157,7 @@ public class CatController : BaseController
 
 
 
+
     public void PlayAction(string triggerName)
     {
         if (_animator == null) return;
@@ -119,5 +166,73 @@ public class CatController : BaseController
 
     public override void UpdateController()
     {
+        switch (_currentState)
+        {
+            case CatState.Idle:
+                OnUpdateIdle();
+                break;
+            case CatState.Walk:
+                OnUpdateWalk();
+                break;
+            case CatState.Sleep:
+                OnUpdateSleep();
+                break;
+            case CatState.Play:
+                OnUpdatePlay();
+                break;
+        }
+    }
+
+    void OnUpdateIdle()
+    {
+        _stateTimer -= Time.deltaTime;
+        if (_stateTimer <= 0) DecideNextAction();
+    }
+
+    void OnUpdateWalk()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _moveSpeed * Time.deltaTime);
+        if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
+        {
+            CurrentState = CatState.Idle;
+        }
+    }
+
+    void OnUpdateSleep()
+    {
+        _stateTimer -= Time.deltaTime;
+        if (_stateTimer <= 0) CurrentState = CatState.Idle;
+    }
+
+    void OnUpdatePlay()
+    {
+        _stateTimer -= Time.deltaTime;
+        if (_stateTimer <= 0) CurrentState = CatState.Idle;
+    }
+
+    void DecideNextAction()
+    {
+        int randomDice = Random.Range(0, 100);
+
+        if (randomDice < 50)
+        {
+            SetRandomTargetPosition();
+            CurrentState = CatState.Walk;
+        }
+        else if (randomDice < 70) CurrentState = CatState.Sleep;
+        else if (randomDice < 80) CurrentState = CatState.Play;
+        else CurrentState = CatState.Idle;
+    }
+
+    void SetRandomTargetPosition()
+    {
+        float x = Random.Range(_minRoomPos.x, _maxRoomPos.x);
+        float y = Random.Range(_minRoomPos.y, _maxRoomPos.y);
+        _targetPosition = new Vector3(x, y, 0);
+
+        if (_targetPosition.x < transform.position.x)
+            _spriteRenderer.flipX = false;
+        else
+            _spriteRenderer.flipX = true;
     }
 }

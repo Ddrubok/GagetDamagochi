@@ -4,7 +4,7 @@ public class BaseController : MonoBehaviour
 {
     void Awake()
     {
-        Init();
+        //Init();
     }
 
     bool _init = false;
