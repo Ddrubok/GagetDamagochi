@@ -230,10 +230,10 @@ public class CatController : BaseController
         float y = Random.Range(_minRoomPos.y, _maxRoomPos.y);
         _targetPosition = new Vector3(x, y, 0);
 
-        bool isMovingLeft = _targetPosition.x < transform.position.x;
-        if (isMovingLeft)
-            _spriteRenderer.flipX = true;  
-        else
-            _spriteRenderer.flipX = false;  
+        //bool isMovingLeft = _targetPosition.x < transform.position.x;
+        //if (isMovingLeft)
+        //    _spriteRenderer.flipX = true;  
+        //else
+        //    _spriteRenderer.flipX = false;  
     }
 }
