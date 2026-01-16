@@ -1,5 +1,4 @@
 using Data;
-//using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,86 +19,84 @@ public interface ILoader<Value>
     void GetData();
 }
 
-[Serializable]
-public class GameData
-{
-    public string catName = "나비";
-    public int level = 1;
-    public int loveScore = 0;
-    public int hunger = 50;
-    public CatBreed myBreed = CatBreed.Cheese;
-    public CatPersonality myPersonality = CatPersonality.Normal;
-    public string lastExitTime; // 오프라인 시간 계산용
-    public string evolutionStage;
-}
 
 public class DataManager
 {
+    public GameData CurrentData;
 
-    public Dictionary<int, Data.TestData> TestDic { get; private set; } = new Dictionary<int, Data.TestData>();
-
-    public int GotchaSize { get; private set; }
-
-    public GameData CurrentData { get; private set; } = new GameData();
-
-    private string _savePath => Path.Combine(Application.persistentDataPath, "SaveData.json");
+    private string _path => Path.Combine(Application.persistentDataPath, "SaveData.json");
 
     public void Init()
     {
-
-        LoadGame();
-
-        Debug.Log("Managers.Data Init 완료");
+        if(CurrentData==null)
+        {
+            LoadGame();
+            Debug.Log("Managers.Data Init 완료");
+        }
+      
     }
 
     public void SaveGame()
     {
-        CurrentData.lastExitTime = DateTime.Now.ToString();
+        CurrentData.MyCat.LastExitTime = System.DateTime.Now.ToString();
 
         string json = JsonUtility.ToJson(CurrentData, true);
+        File.WriteAllText(_path, json);
 
-        File.WriteAllText(_savePath, json);
-        Debug.Log($"게임 저장됨: {_savePath}");
+        Debug.Log("[저장 완료]");
     }
 
     public void LoadGame()
     {
-        if (!File.Exists(_savePath))
+        if (File.Exists(_path))
+        {
+            string json = File.ReadAllText(_path);
+
+            CurrentData = JsonUtility.FromJson<GameData>(json);
+
+            Debug.Log($"[로드 성공] 경로: {_path}");
+        }
+        else
         {
             CurrentData = new GameData();
-            CurrentData.lastExitTime = DateTime.Now.ToString();
-            SaveGame();
-            Debug.Log("세이브 파일이 없어 새로 생성했습니다.");
+            CurrentData.MyCat.LastExitTime = System.DateTime.Now.ToString();
+            Debug.Log("새로운 게임 데이터를 생성했습니다.");
+        }
+        CalculateOfflineStatus();
+    }
+
+    void CalculateOfflineStatus()
+    {
+        if (string.IsNullOrEmpty(CurrentData.MyCat.LastExitTime))
+        {
+            CurrentData.MyCat.LastExitTime = DateTime.Now.ToString();
             return;
         }
 
-        string json = File.ReadAllText(_savePath);
+        DateTime lastTime = DateTime.Parse(CurrentData.MyCat.LastExitTime);
+        DateTime nowTime = DateTime.Now;
 
-        CurrentData = JsonUtility.FromJson<GameData>(json);
-        Debug.Log("게임 불러오기 성공!");
+        TimeSpan timeDiff = nowTime - lastTime;
+        double secondsPassed = timeDiff.TotalSeconds;
+
+        Debug.Log($"게임 꺼진 동안 {secondsPassed}초가 지났습니다.");
+
+        float hungerDecrease = (float)(secondsPassed / 600.0) * 10.0f;
+
+        CurrentData.MyCat.Hunger -= hungerDecrease;
+
+        if (CurrentData.MyCat.Hunger < 0) CurrentData.MyCat.Hunger = 0;
+
+        Debug.Log($"자리를 비운 동안 고양이가 {hungerDecrease}만큼 배고파졌습니다!");
     }
 
     public void ResetData()
     {
-        CurrentData = new GameData(); // 깡통 데이터로 교체
-        CurrentData.lastExitTime = DateTime.Now.ToString();
-
-        SaveGame(); // 덮어쓰기
-
+        CurrentData = new GameData();
+        SaveGame();
         Debug.Log("[Debug] 데이터가 초기화되었습니다.");
     }
 
-    //private Loader LoadJson<Loader, Key, Value>(string path) where Loader : ILoader<Key, Value>
-    //{
-    //    TextAsset textAsset = Managers.Resource.Load<TextAsset>("Data\\" + path);
-    //    return JsonConvert.DeserializeObject<Loader>(textAsset.text);
-    //}
-
-    //private Loader LoadJson<Loader, Value>(string path) where Loader : ILoader<Value>
-    //{
-    //    TextAsset textAsset = Managers.Resource.Load<TextAsset>("Data\\" + path);
-    //    return JsonConvert.DeserializeObject<Loader>(textAsset.text);
-    //}
 
     public static List<T> ReadCsv<T>(string path) where T : new()
     {

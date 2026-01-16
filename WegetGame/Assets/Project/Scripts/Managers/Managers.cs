@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class Managers : MonoBehaviour
 {
@@ -67,6 +68,7 @@ public class Managers : MonoBehaviour
             s_instance._object = new ObjectManager();
             s_instance._pool = new PoolManager();
 
+            s_instance._data.Init();
             s_instance._game.Init();
         }
     }

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3882449828942887946}
   - component: {fileID: 2297869493703827860}
-  - component: {fileID: 4393077917844114462}
+  - component: {fileID: 6130645902029127797}
   - component: {fileID: 8328952004249448007}
   - component: {fileID: 1651481251009681088}
   m_Layer: 5
@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 500, y: 500, z: 500}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -43,7 +43,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1985445030297980701}
   m_CullTransparentMesh: 1
---- !u!114 &4393077917844114462
+--- !u!114 &6130645902029127797
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -52,9 +52,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1985445030297980701}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71bba3a03117d0240a59f50562305eab, type: 3}
+  m_Script: {fileID: 11500000, guid: eb5df8697cc287d4c9041744633683af, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UI_DragFood
+  m_EditorClassIdentifier: Assembly-CSharp::World_DragFood
 --- !u!212 &8328952004249448007
 SpriteRenderer:
   serializedVersion: 2

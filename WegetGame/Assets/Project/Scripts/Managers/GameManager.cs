@@ -11,59 +11,83 @@ public class GameManager
     public WidgetBridge Widget;
     public CatController MyCat;
 
+    // 편의를 위해 데이터 경로를 짧게 줄여주는 프로퍼티
+    private CatData _catData
+    {
+        get
+        {
+            // 혹시 데이터가 로드 안 됐을 때 안전장치
+            if (Managers.Data == null || Managers.Data.CurrentData == null) return null;
+            return Managers.Data.CurrentData.MyCat;
+        }
+    }
 
     public event Action<int> OnHungerChanged;
     public int Hunger
     {
-        get { return Managers.Data.CurrentData.hunger; }
+        get
+        {
+            if (_catData == null) return 50;
+            return (int)_catData.Hunger; // float -> int 변환
+        }
         set
         {
-            int clampedValue = Mathf.Clamp(value, 0, 100);
-            Managers.Data.CurrentData.hunger = clampedValue;
-            OnHungerChanged?.Invoke(clampedValue);
+            if (_catData == null) return;
+
+            float clampedValue = Mathf.Clamp(value, 0, 100);
+            _catData.Hunger = clampedValue;
+
+            // UI 업데이트는 int로 알려줌
+            OnHungerChanged?.Invoke((int)clampedValue);
         }
     }
 
     public event Action<int> OnLoveScoreChanged;
     public int LoveScore
     {
-        get { return Managers.Data.CurrentData.loveScore; }
+        get
+        {
+            if (_catData == null) return 0;
+            return _catData.LoveScore;
+        }
         set
         {
+            if (_catData == null) return;
+
             int clampedValue = Mathf.Clamp(value, -100, 100);
-            Managers.Data.CurrentData.loveScore = clampedValue;
+            _catData.LoveScore = clampedValue;
             OnLoveScoreChanged?.Invoke(clampedValue);
         }
     }
 
     public int Level
     {
-        get { return Managers.Data.CurrentData.level; }
-        set { Managers.Data.CurrentData.level = value; }
+        get { return _catData != null ? _catData.Level : 1; }
+        set { if (_catData != null) _catData.Level = value; }
     }
 
     public string CatName
     {
-        get { return Managers.Data.CurrentData.catName; }
-        set { Managers.Data.CurrentData.catName = value; }
+        get { return _catData != null ? _catData.Name : "나비"; }
+        set { if (_catData != null) _catData.Name = value; }
     }
 
     public CatBreed MyBreed
     {
-        get { return Managers.Data.CurrentData.myBreed; }
-        set { Managers.Data.CurrentData.myBreed = value; }
+        get { return _catData != null ? _catData.Breed : CatBreed.Cheese; }
+        set { if (_catData != null) _catData.Breed = value; }
     }
 
     public CatPersonality MyPersonality
     {
-        get { return Managers.Data.CurrentData.myPersonality; }
-        set { Managers.Data.CurrentData.myPersonality = value; }
+        get { return _catData != null ? _catData.Personality : CatPersonality.Normal; }
+        set { if (_catData != null) _catData.Personality = value; }
     }
 
     public string EvolutionStage
     {
-        get { return Managers.Data.CurrentData.evolutionStage; }
-        set { Managers.Data.CurrentData.evolutionStage = value; }
+        get { return _catData != null ? _catData.EvolutionStage : "Baby"; }
+        set { if (_catData != null) _catData.EvolutionStage = value; }
     }
 
     public CatState CurrentState = CatState.Idle;
@@ -71,22 +95,32 @@ public class GameManager
 
     public void Init()
     {
-        Managers.Data.Init();
         GameObject go = Managers.Instance.gameObject;
         Widget = Util.GetOrAddComponent<WidgetBridge>(go);
         Network = Util.GetOrAddComponent<GeminiNetwork>(go);
-        Network.InitKey();
-        CalculateOfflineProgress();
+
+        if (Network != null) Network.InitKey();
+
+        // 오프라인 보상 계산은 DataManager에서 이미 Load 시점에 수행했으므로
+        // 여기서는 변경된 값을 UI에 뿌려주기만 하면 됨
+        RefreshStats();
+    }
+
+    // 초기값 UI 갱신용
+    public void RefreshStats()
+    {
+        OnHungerChanged?.Invoke(Hunger);
+        OnLoveScoreChanged?.Invoke(LoveScore);
     }
 
     public void InitCat()
     {
         if (MyCat != null)
         {
+            // 데이터에 있는 외형으로 고양이 설정
             MyCat.SetCatVisual(MyBreed, MyPersonality);
 
-            OnHungerChanged?.Invoke(Hunger);
-            OnLoveScoreChanged?.Invoke(LoveScore);
+            RefreshStats();
 
             Debug.Log($"고양이 로드 완료: {MyBreed} / {MyPersonality}");
         }
@@ -107,21 +141,15 @@ public class GameManager
         if (MyCat != null) MyCat.SetCatVisual(MyBreed, MyPersonality);
     }
 
+    // CalculateOfflineProgress는 DataManager.LoadGame() 쪽으로 로직을 옮겼으므로 삭제하거나
+    // 만약 GameManager에서 꼭 해야 한다면 아래처럼 경로 수정:
+    /*
     void CalculateOfflineProgress()
     {
-        string lastTimeStr = Managers.Data.CurrentData.lastExitTime;
-        if (string.IsNullOrEmpty(lastTimeStr)) return;
-
-        DateTime lastTime = DateTime.Parse(lastTimeStr);
-        TimeSpan timePassed = DateTime.Now - lastTime;
-
-        int hungerDecrease = (int)(timePassed.TotalMinutes / 10);
-        if (hungerDecrease > 0)
-        {
-            Hunger = Hunger - hungerDecrease;
-            Debug.Log($"오프라인 보상: 배고픔 -{hungerDecrease}");
-        }
+        string lastTimeStr = _catData.LastExitTime;
+        // ... (나머지 로직)
     }
+    */
 
     public void Save()
     {
