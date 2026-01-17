@@ -35,6 +35,8 @@ public class UI_Base : InitBase
 	protected void BindButtons(Type type) { Bind<Button>(type); }
 	protected void BindToggles(Type type) { Bind<Toggle>(type); }
 
+	protected void BindSlider(Type type ) { Bind<Slider>(type); }	
+
 	protected T Get<T>(int idx) where T : UnityEngine.Object
 	{
 		UnityEngine.Object[] objects = null;
@@ -50,6 +52,7 @@ public class UI_Base : InitBase
 	protected Button GetButton(int idx) { return Get<Button>(idx); }
 	protected Image GetImage(int idx) { return Get<Image>(idx); }
 	protected Toggle GetToggle(int idx) { return Get<Toggle>(idx); }
+	protected Slider GetSlider(int idx) { return Get<Slider>(idx); }
 
 	public static void BindEvent(GameObject go, Action<PointerEventData> action = null, Define.EUIEvent type = Define.EUIEvent.Click)
 	{

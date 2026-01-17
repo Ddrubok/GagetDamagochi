@@ -6,6 +6,14 @@ using UnityEngine.EventSystems;
 using TMPro;
 public class UI_Main : UI_Scene
 {
+
+    [SerializeField] private Slider _hungerSlider;
+    [SerializeField] private Text _goldText;
+
+    enum Sliders
+    {
+        HungerSlider
+    }
     enum GameObjects
     {
         ImgBubble
@@ -39,11 +47,15 @@ public class UI_Main : UI_Scene
         Bind<Button>(typeof(Buttons));
         Bind<TextMeshProUGUI>(typeof(Texts));
         Bind<TMP_InputField>(typeof(InputFields));
-        //GetButton((int)Buttons.Feed).gameObject.BindEvent(OnClick_Feed);
-        //GetButton((int)Buttons.Send).gameObject.BindEvent(OnClick_Send);
+        Bind<Slider>(typeof(Sliders));
         GetButton((int)Buttons.BtnDebug).gameObject.BindEvent(OnClickDebug);
+        _hungerSlider = GetSlider((int)Sliders.HungerSlider);
         Managers.Game.OnHungerChanged += RefreshUI;
         Managers.Game.OnLoveScoreChanged += RefreshUI;
+
+        UpdateHungerUI(Managers.Game.Hunger);
+
+        Managers.Game.OnHungerChanged += UpdateHungerUI;
 
         RefreshUI(0);
 
@@ -74,7 +86,6 @@ public class UI_Main : UI_Scene
 
     void OnClickDebug(PointerEventData evt)
     {
-        // 팝업 띄우기
         Managers.UI.ShowPopupUI<UI_Debug>("Prefabs/UI/PopUp/UI_Debug");
     }
 
@@ -83,32 +94,39 @@ public class UI_Main : UI_Scene
         int hunger = Managers.Game.Hunger;
         int love = Managers.Game.LoveScore;
 
-        //GetTextMesh((int)Texts.Status).text = $"배고픔: {hunger} / 호감도: {love}";
     }
 
     public void ShowBubble(string text, float duration = 3.0f)
     {
-        // 1. 텍스트 설정
         GetTextMesh((int)Texts.TextBubble).text = text;
 
-        // 2. 말풍선 켜기
         GetObject((int)GameObjects.ImgBubble).SetActive(true);
 
-        // 3. 기존에 켜져 있던 타이머가 있다면 끄고 새로 시작 (깜빡임 방지)
         StopAllCoroutines();
         StartCoroutine(CoHideBubble(duration));
     }
 
-    // 일정 시간 뒤에 자동으로 꺼지는 코루틴
     IEnumerator CoHideBubble(float duration)
     {
         yield return new WaitForSeconds(duration);
 
-        // 말풍선 끄기
         GetObject((int)GameObjects.ImgBubble).SetActive(false);
 
-        // 고양이 상태도 IDLE로 복귀 요청 (매니저가 있다면)
         if (Managers.Game.MyCat != null)
             Managers.Game.MyCat.ChangeState(Define.CatState.Idle);
     }
+
+    void UpdateHungerUI(int value)
+    {
+        // 0~100 값을 0.0~1.0 (Slider 범위)으로 변환
+        _hungerSlider.value = value / 100.0f;
+    }
+
+    // 오브젝트가 파괴될 때 구독 해제 (에러 방지)
+    void OnDestroy()
+    {
+        if (Managers.Instance != null)
+            Managers.Game.OnHungerChanged -= UpdateHungerUI;
+    }
+
 }
