@@ -59,6 +59,8 @@ public class CatController : BaseController
     public void ChangeState(CatState newState)
     {
         // 상태 변경 시 애니메이션 및 타이머 설정
+
+        Managers.Object.SpawnEffect("HeartEffect", transform.position + Vector3.up, 1.5f);
         switch (newState)
         {
             case CatState.Idle:
