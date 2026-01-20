@@ -30,16 +30,19 @@ public class CatController : BaseController
         }
     }
 
+    private float _speechTimer = 0f;
+    private float _speechInterval = 10.0f;
+    [Header("Dialogue Data")]
+    [SerializeField] private CatDialogueData _dialogueData;
+
     public override bool Init()
     {
         if (base.Init() == false)
             return false;
 
-        // 애니메이터 찾기 (구조에 따라 경로 수정 필요)
         _animator = Util.GetOrAddComponent<Animator>(Util.FindChild(gameObject, "Animation", true));
         _spriteRenderer = _animator.GetComponent<SpriteRenderer>();
 
-        // ★ [변경] 하드코딩 제거 -> 데이터 매니저에서 저장된 외형 정보 불러오기
         if (Managers.Data != null)
         {
             SetCatVisual(_myCatData.Breed, _myCatData.Personality);
@@ -47,7 +50,6 @@ public class CatController : BaseController
         }
         else
         {
-            // 매니저가 없을 경우(테스트용) 기본값
             SetCatVisual(CatBreed.Cheese, CatPersonality.Normal);
         }
 
@@ -58,7 +60,7 @@ public class CatController : BaseController
 
     public void ChangeState(CatState newState)
     {
-       
+
         switch (newState)
         {
             case CatState.Idle:
@@ -81,11 +83,9 @@ public class CatController : BaseController
                 break;
 
             case CatState.Eat:
-                _stateTimer = 3.0f; // 3초간 냠냠
-                PlayAnimByState(CatState.Eat);
+                _stateTimer = 3.0f; PlayAnimByState(CatState.Eat);
                 break;
 
-            // 아플 때는 타이머 없이 계속 앓아눕게 처리
             case CatState.Sick:
                 PlayAnimByState(CatState.Sick);
                 break;
@@ -93,6 +93,12 @@ public class CatController : BaseController
             default:
                 PlayAnimByState(newState);
                 break;
+        }
+
+        if (_dialogueData != null)
+        {
+            string msg = _dialogueData.GetRandomDialogue(newState, Managers.Game.LoveScore);
+            if (!string.IsNullOrEmpty(msg)) ShowBubble(msg);
         }
     }
 
@@ -121,7 +127,6 @@ public class CatController : BaseController
         _animator.CrossFade(animName, 0.1f);
     }
 
-    // ... (GetRandomIdleAnim, GetWeightedBoxAnim, SetCatVisual 등 기존 함수들은 동일) ...
     string GetRandomIdleAnim() { return (Random.Range(0, 2) == 0) ? "Idle1" : "Idle2"; }
     string GetWeightedBoxAnim()
     {
@@ -140,13 +145,9 @@ public class CatController : BaseController
         else Debug.LogError($"외형 파일을 찾을 수 없음: {path}");
     }
 
-    // ==================================================================================
-    // ★ [핵심] 데이터 연동 로직
-    // ==================================================================================
 
     public override void UpdateController()
     {
-        // 1. 상태별 행동 (FSM)
         switch (_currentState)
         {
             case CatState.Idle: OnUpdateIdle(); break;
@@ -155,35 +156,29 @@ public class CatController : BaseController
             case CatState.Play: OnUpdatePlay(); break;
             case CatState.Eat: OnUpdateEat(); break;
             case CatState.Sick:
-                // 아플 때는 아무것도 안 하고 배고픔만 체크 (회복될 때까지 대기)
                 DecreaseStats();
                 break;
         }
 
-        // 2. 실시간 스탯 감소 (매 프레임 호출)
-        if (_currentState != CatState.Eat) // 먹을 때는 배고픔 안 깎임
+        if (_currentState != CatState.Eat)
         {
             DecreaseStats();
         }
     }
 
-    // 시간 흐름에 따른 스탯 감소
     void DecreaseStats()
     {
         if (Managers.Data == null) return;
 
-        // 배고픔 감소 속도 (기본 1.0, 자고 있으면 0.2로 천천히)
         float hungerSpeed = (_currentState == CatState.Sleep) ? 0.2f : 1.0f;
         float funSpeed = 0.5f;
 
-        // 값 변경
         if (_myCatData.Hunger > 0)
             _myCatData.Hunger -= Time.deltaTime * hungerSpeed;
 
         if (_myCatData.Fun > 0)
             _myCatData.Fun -= Time.deltaTime * funSpeed;
 
-        // ★ 상태 체크: 배가 너무 고프면 '아픔(Sick)' 상태로 강제 전환
         if (_myCatData.Hunger <= 0 && _currentState != CatState.Sick && _currentState != CatState.Eat)
         {
             Debug.Log("고양이가 너무 배고파서 쓰러졌습니다!");
@@ -191,7 +186,6 @@ public class CatController : BaseController
         }
     }
 
-    // ★ 밥 먹기 (World_DragFood에서 호출)
     public void EatFood(float amount)
     {
         if (Managers.Data == null) return;
@@ -201,16 +195,12 @@ public class CatController : BaseController
 
         Debug.Log($"냠냠! 현재 배고픔: {_myCatData.Hunger:F1}");
 
-        // ★ [변경 포인트 4] 저장도 Managers를 통해서
         Managers.Data.SaveGame();
 
         if (_currentState == CatState.Sick) CurrentState = CatState.Idle;
         else CurrentState = CatState.Eat;
     }
 
-    // ==================================================================================
-    // 기존 FSM 업데이트 함수들
-    // ==================================================================================
 
     void OnUpdateEat()
     {
@@ -228,9 +218,7 @@ public class CatController : BaseController
     {
         transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _moveSpeed * Time.deltaTime);
 
-        // 방향 전환 (Walk 상태일 때 계속 바라보게)
-        if (_targetPosition.x < transform.position.x) _spriteRenderer.flipX = false; // 기본이 왼쪽이면 false
-        else _spriteRenderer.flipX = true;
+        if (_targetPosition.x < transform.position.x) _spriteRenderer.flipX = false; else _spriteRenderer.flipX = true;
 
         if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
             CurrentState = CatState.Idle;
@@ -250,7 +238,6 @@ public class CatController : BaseController
 
     void DecideNextAction()
     {
-        // 아픈 상태면 행동 결정 안 함
         if (_myCatData.Hunger <= 0)
         {
             CurrentState = CatState.Sick;
@@ -275,7 +262,6 @@ public class CatController : BaseController
         float y = Random.Range(_minRoomPos.y, _maxRoomPos.y);
         _targetPosition = new Vector3(x, y, 0);
 
-        // 방향 전환 코드는 OnUpdateWalk로 이동하거나 여기서 한 번 설정 (Walk 시작 시점)
     }
 
     public void ShowBubble(string message)
@@ -295,35 +281,48 @@ public class CatController : BaseController
 
     void OnMouseDown()
     {
-        // 1. UI가 클릭을 가로챘는지 확인 (버튼 누르려다 고양이 누르는 실수 방지)
         if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
 
-        // 2. 상호작용 가능한 상태인지 확인 (자거나, 멀리 갔거나)
         if (_currentState == CatState.Sleep || _currentState == CatState.Sick)
         {
-            // 자는데 건드리면 싫어하는 반응을 넣을 수도 있음 (선택사항)
-            // PlayAnimByState(CatState.Angry); 
             return;
         }
 
-        // 3. 쓰다듬기 로직 실행
         PetCat();
     }
 
     void PetCat()
     {
-        //Debug.Log("쓰다듬기!");
-
-        //Managers.Game.LoveScore += 5;
-
-        //if (_animator != null) CurrentState = CatState.Happy;
-
-        //GameObject heart = Managers.Object.SpawnEffect("Effects/HeartEffect", transform.position);
-
-        //if (heart != null)
-        //{
-        //    heart.transform.position += Vector3.up * 1.0f;
-        //}
         Managers.Game.ProcessChat("주인이 나를 쓰다듬어줬어. 기분이 어때?");
+    }
+
+    void TryRandomSpeech()
+    {
+        _speechTimer += Time.deltaTime;
+
+        if (_speechTimer >= _speechInterval)
+        {
+            _speechTimer = 0f;
+
+            // 30% 확률로 말하기
+            if (Random.Range(0, 100) < 30)
+            {
+                if (_dialogueData != null)
+                {
+                    int currentLove = Managers.Game.LoveScore;
+                    string msg = _dialogueData.GetRandomDialogue(_currentState, currentLove);
+
+                    if (!string.IsNullOrEmpty(msg))
+                    {
+                        ShowBubble(msg);
+                    }
+                    else
+                    {
+                        // 조건에 맞는 대사가 하나도 없을 때 (예외 처리)
+                        // ShowBubble("야옹?");
+                    }
+                }
+            }
+        }
     }
 }

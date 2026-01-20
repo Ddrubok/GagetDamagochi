@@ -116,6 +116,7 @@ MonoBehaviour:
   _moveSpeed: 2
   _minRoomPos: {x: -2, y: -2}
   _maxRoomPos: {x: 2, y: 2}
+  _dialogueData: {fileID: 11400000, guid: 0f0f31a708d9d5345b228c12209121ed, type: 2}
 --- !u!114 &7135275356834041349
 MonoBehaviour:
   m_ObjectHideFlags: 0

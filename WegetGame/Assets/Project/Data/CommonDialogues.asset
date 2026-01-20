@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 344e7d8cc2b34fe4e8dd299da4a62435, type: 3}
+  m_Name: CommonDialogues
+  m_EditorClassIdentifier: Assembly-CSharp::CatDialogueData
+  Dialogues:
+  - Text: "\uAC74\uB4DC\uB9AC\uC9C0 \uB9C8\uB77C"
+    State: 1
+    MinLove: -100
+    MaxLove: 0
+  - Text: "\uC9D1\uC0AC\uC57C \uBB50\uD574?"
+    State: 1
+    MinLove: 0
+    MaxLove: 50
+  - Text: "\uC9D1\uC0AC \uB108\uB791 \uC788\uC73C\uBA74 \uD589\uBCF5\uD558\uB2E4"
+    State: 1
+    MinLove: 50
+    MaxLove: 100
+  - Text: "\uCFE8\uCFE8... Zzz..."
+    State: 2
+    MinLove: -100
+    MaxLove: 100
+  - Text: "\uC6B0\uC640! \uBC25\uC774\uB2E4"
+    State: 3
+    MinLove: 0
+    MaxLove: 100
+  - Text: "\uBAB8\uC774 \uC544\uD30C..."
+    State: 3
+    MinLove: -100
+    MaxLove: 100
+  - Text: "흥, 쳐다보지 마라냥."
+    State: 1
+    MinLove: -100
+    MaxLove: -50
+  - Text: "밥 줄 거 아니면 저리 가라."
+    State: 1
+    MinLove: -100
+    MaxLove: -20
+  - Text: "내 구역 침범하지 마라냥!"
+    State: 1
+    MinLove: -100
+    MaxLove: -30
+  - Text: "인간은 정말 귀찮은 존재다냥..."
+    State: 1
+    MinLove: -50
+    MaxLove: 0
+  - Text: "집사야, 심심하다냥."
+    State: 1
+    MinLove: 0
+    MaxLove: 40
+  - Text: "창문 밖 새가 맛있어 보인다냥..."
+    State: 1
+    MinLove: 0
+    MaxLove: 50
+  - Text: "그루밍이나 해야겠다... 쓱싹."
+    State: 1
+    MinLove: 10
+    MaxLove: 50
+  - Text: "오늘 날씨가 털 말리기 딱 좋다냥."
+    State: 1
+    MinLove: 0
+    MaxLove: 50
+  - Text: "너랑 있으면 마음이 편하다냥❤️"
+    State: 1
+    MinLove: 60
+    MaxLove: 100
+  - Text: "집사야! 나 좀 쓰다듬어 봐라냥!"
+    State: 1
+    MinLove: 50
+    MaxLove: 90
+  - Text: "골골송 들어볼래? 그릉... 그릉..."
+    State: 1
+    MinLove: 80
+    MaxLove: 100
+  - Text: "너는 내 최고의 집사다냥!"
+    State: 1
+    MinLove: 90
+    MaxLove: 100
+  - Text: "쿨쿨... 츄르가 둥둥 떠다녀..."
+    State: 2
+    MinLove: -100
+    MaxLove: 100
+  - Text: "크어... 커억... (코 고는 소리)"
+    State: 2
+    MinLove: -100
+    MaxLove: 100
+  - Text: "움찔! ...다시 잔다냥..."
+    State: 2
+    MinLove: -100
+    MaxLove: 100
+  - Text: "Zzz... 집사야 불 꺼라냥..."
+    State: 2
+    MinLove: 0
+    MaxLove: 100
+  - Text: "우적우적! 맛있다냥!"
+    State: 3
+    MinLove: 0
+    MaxLove: 100
+  - Text: "음~ 이 맛은 3일 전 그 맛이군."
+    State: 3
+    MinLove: 0
+    MaxLove: 100
+  - Text: "건드리지 마라! 먹을 땐 개도 안 건드린다냥!"
+    State: 3
+    MinLove: -100
+    MaxLove: 0
+  - Text: "집사야, 이거 좀 더 없냥?"
+    State: 3
+    MinLove: 50
+    MaxLove: 100
+  - Text: "응? 뭐라고 했냥?"
+    State: 5
+    MinLove: -20
+    MaxLove: 50
+  - Text: "계속 말해봐라냥. 듣고 있다."
+    State: 5
+    MinLove: 20
+    MaxLove: 100
+  - Text: "딴짓하는 척 하면서 다 듣고 있다냥."
+    State: 5
+    MinLove: 0
+    MaxLove: 80
+  - Text: "음... 그건 생선 몇 마리 가치일까?"
+    State: 6
+    MinLove: 0
+    MaxLove: 100
+  - Text: "고양이 통신망 접속 중... 삐리삐리..."
+    State: 6
+    MinLove: 0
+    MaxLove: 100
+  - Text: "신중하게 고민 중이다냥. 방해 금지!"
+    State: 6
+    MinLove: -50
+    MaxLove: 50
+  - Text: "야호! 기분 최고다냥!"
+    State: 8
+    MinLove: 0
+    MaxLove: 100
+  - Text: "칭찬은 고양이를 춤추게 한다냥~"
+    State: 8
+    MinLove: 30
+    MaxLove: 100
+  - Text: "집사, 오늘따라 센스 있다냥?"
+    State: 8
+    MinLove: 0
+    MaxLove: 100
+  - Text: "하악-!! (이빨을 드러냄)"
+    State: 10
+    MinLove: -100
+    MaxLove: 100
+  - Text: "복수할거다냥... 신발 조심해라."
+    State: 10
+    MinLove: -100
+    MaxLove: 50
+  - Text: "흥! 나 삐졌다. 말 걸지 마!"
+    State: 10
+    MinLove: 0
+    MaxLove: 100
+  - Text: "배가 등에 붙었다냥... 힘이 없다..."
+    State: 11
+    MinLove: -100
+    MaxLove: 100
+  - Text: "으으... 몸이 으슬으슬하다냥..."
+    State: 11
+    MinLove: -100
+    MaxLove: 100
+  - Text: "나 좀 내버려 둬라... 아프다..."
+    State: 11
+    MinLove: -100
+    MaxLove: 0
+  - Text: "집사야... 나 좀 간호해줘라냥..."
+    State: 11
+    MinLove: 50
+    MaxLove: 100
+  - Text: "잡았다 요 녀석!!"
+    State: 12
+    MinLove: -100
+    MaxLove: 100
+  - Text: "우다다다다다다다!!!!"
+    State: 12
+    MinLove: 0
+    MaxLove: 100
+  - Text: "낚싯대 더 흔들어봐라냥! 더 빨리!"
+    State: 12
+    MinLove: 20
+    MaxLove: 100

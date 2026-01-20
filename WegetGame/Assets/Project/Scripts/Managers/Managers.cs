@@ -81,11 +81,12 @@ public class Managers : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        Game.Save();
         if (s_instance != null)
         {
             s_instance = null;
             Destroy(gameObject);
         }
-        Game.Save();
+       
     }
 }
