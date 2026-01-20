@@ -192,8 +192,13 @@ public class GameManager
 
             if (MyCat) MyCat.ChangeState(reaction);
 
-            UI_Main ui = Managers.UI.GetSceneUI<UI_Main>();
-            if (ui != null) ui.ShowBubble(reply, 3.0f);
+            //UI_Main ui = Managers.UI.GetSceneUI<UI_Main>();
+            //if (ui != null) ui.ShowBubble(reply, 3.0f);
+
+            if (MyCat != null)
+            {
+                MyCat.ShowBubble(reply); // 고양이 스크립트에 만든 함수 호출
+            }
 
             Save();
             onComplete?.Invoke(reply);

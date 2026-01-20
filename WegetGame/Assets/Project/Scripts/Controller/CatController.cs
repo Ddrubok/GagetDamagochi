@@ -58,9 +58,7 @@ public class CatController : BaseController
 
     public void ChangeState(CatState newState)
     {
-        // 상태 변경 시 애니메이션 및 타이머 설정
-
-        Managers.Object.SpawnEffect("HeartEffect", transform.position + Vector3.up, 1.5f);
+       
         switch (newState)
         {
             case CatState.Idle:
@@ -278,5 +276,54 @@ public class CatController : BaseController
         _targetPosition = new Vector3(x, y, 0);
 
         // 방향 전환 코드는 OnUpdateWalk로 이동하거나 여기서 한 번 설정 (Walk 시작 시점)
+    }
+
+    public void ShowBubble(string message)
+    {
+        GameObject go = Managers.Object.SpawnEffect("UI/UI_Bubble", transform.position + new Vector3(0, 1.5f, 0), 3.0f);
+
+        if (go != null)
+        {
+            UI_Bubble bubble = go.GetComponent<UI_Bubble>();
+
+            if (bubble != null)
+            {
+                bubble.SetText(message);
+            }
+        }
+    }
+
+    void OnMouseDown()
+    {
+        // 1. UI가 클릭을 가로챘는지 확인 (버튼 누르려다 고양이 누르는 실수 방지)
+        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+
+        // 2. 상호작용 가능한 상태인지 확인 (자거나, 멀리 갔거나)
+        if (_currentState == CatState.Sleep || _currentState == CatState.Sick)
+        {
+            // 자는데 건드리면 싫어하는 반응을 넣을 수도 있음 (선택사항)
+            // PlayAnimByState(CatState.Angry); 
+            return;
+        }
+
+        // 3. 쓰다듬기 로직 실행
+        PetCat();
+    }
+
+    void PetCat()
+    {
+        //Debug.Log("쓰다듬기!");
+
+        //Managers.Game.LoveScore += 5;
+
+        //if (_animator != null) CurrentState = CatState.Happy;
+
+        //GameObject heart = Managers.Object.SpawnEffect("Effects/HeartEffect", transform.position);
+
+        //if (heart != null)
+        //{
+        //    heart.transform.position += Vector3.up * 1.0f;
+        //}
+        Managers.Game.ProcessChat("주인이 나를 쓰다듬어줬어. 기분이 어때?");
     }
 }

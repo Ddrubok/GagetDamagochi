@@ -42,7 +42,7 @@ public class ObjectManager
 
         return controller;
     }
-    public void SpawnEffect(string prefabName, Vector3 position, float duration = 2.0f)
+    public GameObject SpawnEffect(string prefabName, Vector3 position, float duration = 2.0f)
     {
         // 1. 프리팹 찾기 (false를 넘겨서 Objects 폴더 말고 다른 곳도 찾게 함)
         GameObject prefab = GetPrefab(prefabName, false);
@@ -50,7 +50,7 @@ public class ObjectManager
         if (prefab == null)
         {
             Debug.LogError($"[ObjectManager] 이펙트 프리팹을 찾을 수 없습니다: {prefabName}");
-            return;
+            return null;
         }
 
         // 2. 생성
@@ -61,6 +61,8 @@ public class ObjectManager
         // 3. 파티클 재생 후 자동 삭제 예약
         // (파티클은 굳이 DicGameObject에 넣어 관리할 필요가 보통 없습니다)
         Object.Destroy(go, duration);
+
+        return go;
     }
     public void Despawn<T>(T obj) where T : BaseController
     {
