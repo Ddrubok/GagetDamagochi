@@ -7,10 +7,16 @@ using UnityEngine.SceneManagement;
 public class Managers : MonoBehaviour
 {
     private static Managers s_instance;
+
+    private static bool s_isQuitting = false;
     public static Managers Instance
     {
         get
         {
+            if (s_isQuitting)
+            {
+                return null;
+            }
             if (s_instance == null)
                 Init();
             return s_instance;
@@ -46,6 +52,8 @@ public class Managers : MonoBehaviour
     {
         if (s_instance == null)
         {
+
+            if (s_isQuitting) return;
             GameObject go = GameObject.Find("@Managers");
             if (go == null)
             {
@@ -84,6 +92,7 @@ public class Managers : MonoBehaviour
         Game.Save();
         if (s_instance != null)
         {
+            s_isQuitting = true;
             s_instance = null;
             Destroy(gameObject);
         }

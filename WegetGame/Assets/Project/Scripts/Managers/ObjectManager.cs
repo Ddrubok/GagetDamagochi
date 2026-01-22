@@ -42,7 +42,7 @@ public class ObjectManager
 
         return controller;
     }
-    public GameObject SpawnEffect(string prefabName, Vector3 position, float duration = 2.0f)
+    public GameObject SpawnEffect(string prefabName, Vector3 position,Transform Parent = null, float duration = 2.0f)
     {
         // 1. 프리팹 찾기 (false를 넘겨서 Objects 폴더 말고 다른 곳도 찾게 함)
         GameObject prefab = GetPrefab(prefabName, false);
@@ -55,6 +55,8 @@ public class ObjectManager
 
         // 2. 생성
         GameObject go = Object.Instantiate(prefab);
+        if(Parent!=null)
+            go.GetComponent<RectTransform>().parent = Parent;
         go.transform.position = position;
         go.name = $"{prefabName}_Effect";
 
