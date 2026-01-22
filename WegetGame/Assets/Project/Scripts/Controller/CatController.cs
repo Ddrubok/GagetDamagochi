@@ -266,7 +266,7 @@ public class CatController : BaseController
 
     public void ShowBubble(string message)
     {
-        GameObject go = Managers.Object.SpawnEffect("UI/UI_Bubble", transform.position + new Vector3(0, 1.5f, 0), transform, 3.0f);
+        GameObject go = Managers.Object.SpawnEffect("UI/UI_Bubble", transform.position + new Vector3(0, 1.5f, 0), transform);
 
         if (go != null)
         {
@@ -274,6 +274,7 @@ public class CatController : BaseController
 
             if (bubble != null)
             {
+                bubble.Init(transform);
                 bubble.SetText(message);
             }
         }
