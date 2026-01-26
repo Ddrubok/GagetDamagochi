@@ -72,6 +72,11 @@ public class CatController : BaseController
                 PlayAnimByState(CatState.Walk);
                 break;
 
+            case CatState.Sleepy:
+                _stateTimer = 0f;
+                PlayAnimByState(CatState.Sleepy);
+                break;
+
             case CatState.Sleep:
                 _stateTimer = Random.Range(5.0f, 10.0f);
                 PlayAnimByState(CatState.Sleep);
@@ -153,6 +158,7 @@ public class CatController : BaseController
             case CatState.Idle: OnUpdateIdle(); break;
             case CatState.Walk: OnUpdateWalk(); break;
             case CatState.Sleep: OnUpdateSleep(); break;
+            case CatState.Sleepy: OnUpdateSleepy(); break;
             case CatState.Play: OnUpdatePlay(); break;
             case CatState.Eat: OnUpdateEat(); break;
             case CatState.Sick:
@@ -228,6 +234,19 @@ public class CatController : BaseController
     {
         _stateTimer -= Time.deltaTime;
         if (_stateTimer <= 0) CurrentState = CatState.Idle;
+    }
+
+    void OnUpdateSleepy()
+    {
+        AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+
+        if (stateInfo.IsName("Sleepy"))
+        {
+            if (stateInfo.normalizedTime >= 0.95f)
+            {
+                CurrentState = CatState.Sleep;
+            }
+        }
     }
 
     void OnUpdatePlay()
