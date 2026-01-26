@@ -270,7 +270,7 @@ public class CatController : BaseController
             SetRandomTargetPosition();
             CurrentState = CatState.Walk;
         }
-        else if (randomDice < 70) CurrentState = CatState.Sleep;
+        else if (randomDice < 70) CurrentState = CatState.Sleepy;
         else if (randomDice < 80) CurrentState = CatState.Play;
         else CurrentState = CatState.Idle;
     }
@@ -285,6 +285,8 @@ public class CatController : BaseController
 
     public void ShowBubble(string message)
     {
+
+        string finalMsg = Managers.Game.GetFinalMessage(message);
         GameObject go = Managers.Object.SpawnEffect("UI/UI_Bubble", transform.position + new Vector3(0, 1.5f, 0), transform);
 
         if (go != null)
@@ -294,7 +296,7 @@ public class CatController : BaseController
             if (bubble != null)
             {
                 bubble.Init(transform);
-                bubble.SetText(message);
+                bubble.SetText(finalMsg);
             }
         }
     }

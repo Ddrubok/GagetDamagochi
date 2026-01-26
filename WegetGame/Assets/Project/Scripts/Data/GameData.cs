@@ -20,6 +20,9 @@ public class GameData
     // ==========================================
     // 나중에 고양이를 여러 마리 키우는 업데이트를 대비해 배열이나 리스트로 확장 가능하게 분리
     public CatData MyCat = new CatData();
+
+    public int ClickLevel = 1;       // 터치 레벨 (높을수록 돈 많이 범)
+    public bool HasTranslator = false; // 번역기 아이템 보유 여부
 }
 
 [Serializable]

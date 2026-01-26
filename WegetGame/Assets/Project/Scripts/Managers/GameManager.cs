@@ -92,6 +92,115 @@ public class GameManager
 
     public CatState CurrentState = CatState.Idle;
 
+    public int ClickLevel
+    {
+        get { return Managers.Data.CurrentData.ClickLevel; }
+        set { Managers.Data.CurrentData.ClickLevel = value; }
+    }
+
+    public bool HasTranslator
+    {
+        get { return Managers.Data.CurrentData.HasTranslator; }
+        set { Managers.Data.CurrentData.HasTranslator = value; }
+    }
+
+    public int GoldPerClick
+    {
+        get
+        {
+            return 10 * ClickLevel;
+        }
+    }
+
+    public int UpgradeCost
+    {
+        get
+        {
+            // 예: 기본 100원에서 시작, 레벨마다 1.5배씩 비싸짐
+            return (int)(100 * Mathf.Pow(1.5f, ClickLevel - 1));
+        }
+    }
+
+    // 터치했을 때 돈 벌기 (CatController에서 호출)
+    public void EarnGoldByClick()
+    {
+        int amount = GoldPerClick;
+        Managers.Data.CurrentData.Gold += amount;
+
+        Debug.Log($"골드 획득! +{amount} (현재: {Managers.Data.CurrentData.Gold})");
+    }
+
+    public bool TryUpgradeClick()
+    {
+        int cost = UpgradeCost;
+        if (Managers.Data.CurrentData.Gold >= cost)
+        {
+            Managers.Data.CurrentData.Gold -= cost;
+            ClickLevel++;
+            Debug.Log($"레벨업 성공! Lv.{ClickLevel}");
+            Save(); // 저장
+            return true;
+        }
+        else
+        {
+            Debug.Log("골드가 부족합니다!");
+            return false;
+        }
+    }
+
+    // 번역기 구매 시도
+    public bool TryBuyTranslator()
+    {
+        int cost = 5000; // 번역기는 비쌈
+        if (HasTranslator) return false; // 이미 샀음
+
+        if (Managers.Data.CurrentData.Gold >= cost)
+        {
+            Managers.Data.CurrentData.Gold -= cost;
+            HasTranslator = true;
+            Debug.Log("번역기 구매 완료! 이제 고양이 말이 들립니다.");
+            Save();
+            return true;
+        }
+        return false;
+    }
+
+    // =========================================================
+    // ★ 2. 야옹어 변환기 (번역기 로직)
+    // =========================================================
+    public string GetFinalMessage(string originalText)
+    {
+        // 1. 번역기가 있으면 원래 한국어 출력
+        if (HasTranslator)
+        {
+            return originalText;
+        }
+
+        // 2. 번역기가 없으면 "야옹"으로 변조
+        // AI가 긴 말을 했다면 야옹도 길게, 짧으면 짧게
+        return ConvertToMeow(originalText);
+    }
+
+    private string ConvertToMeow(string text)
+    {
+        string[] meowSounds = { "야옹", "냐옹", "미야옹~", "그릉...", "냥!", "아르릉" };
+
+        // 문장 길이에 따라 야옹 횟수 결정 (대략 5글자당 1번 야옹)
+        int count = Mathf.Max(1, text.Length / 5);
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        for (int i = 0; i < count; i++)
+        {
+            sb.Append(meowSounds[UnityEngine.Random.Range(0, meowSounds.Length)]);
+            sb.Append(" "); // 띄어쓰기
+
+            // 가끔 느낌표나 물음표 붙이기
+            if (UnityEngine.Random.value > 0.7f) sb.Append("? ");
+            else if (UnityEngine.Random.value > 0.8f) sb.Append("! ");
+        }
+
+        return sb.ToString().Trim();
+    }
 
     public void Init()
     {
