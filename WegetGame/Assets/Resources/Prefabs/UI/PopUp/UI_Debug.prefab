@@ -1157,7 +1157,7 @@ MonoBehaviour:
   m_text: TextVoiceLog
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f194499d41270b742a3a0de34f3aa482, type: 2}
-  m_sharedMaterial: {fileID: 6734617326041594089, guid: f194499d41270b742a3a0de34f3aa482, type: 2}
+  m_sharedMaterial: {fileID: -7018245205543966663, guid: f194499d41270b742a3a0de34f3aa482, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3495,6 +3495,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 176da99dc18801e4f8f6973092a44c8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CatController
+  _moveSpeed: 2
+  _minRoomPos: {x: -2, y: -2}
+  _maxRoomPos: {x: 2, y: 2}
+  _dialogueData: {fileID: 0}
 --- !u!212 &2924573226098765069
 SpriteRenderer:
   serializedVersion: 2
@@ -3838,7 +3842,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8790111276784031304}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
@@ -4094,7 +4098,7 @@ MonoBehaviour:
   m_text: TextInfo
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f194499d41270b742a3a0de34f3aa482, type: 2}
-  m_sharedMaterial: {fileID: 6734617326041594089, guid: f194499d41270b742a3a0de34f3aa482, type: 2}
+  m_sharedMaterial: {fileID: -7018245205543966663, guid: f194499d41270b742a3a0de34f3aa482, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

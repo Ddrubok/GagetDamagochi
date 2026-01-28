@@ -22,7 +22,8 @@ public class UI_Main : UI_Scene
     {
         Feed,
         Send,
-        BtnDebug
+        BtnDebug,
+        BtnShop
     }
 
     enum Texts
@@ -49,6 +50,7 @@ public class UI_Main : UI_Scene
         Bind<TMP_InputField>(typeof(InputFields));
         Bind<Slider>(typeof(Sliders));
         GetButton((int)Buttons.BtnDebug).gameObject.BindEvent(OnClickDebug);
+        GetButton((int)Buttons.BtnShop).gameObject.BindEvent(OnClickShop);
         _hungerSlider = GetSlider((int)Sliders.HungerSlider);
         Managers.Game.OnHungerChanged += RefreshUI;
         Managers.Game.OnLoveScoreChanged += RefreshUI;
@@ -89,6 +91,10 @@ public class UI_Main : UI_Scene
         Managers.UI.ShowPopupUI<UI_Debug>("Prefabs/UI/PopUp/UI_Debug");
     }
 
+    void OnClickShop(PointerEventData evt)
+    {
+        Managers.UI.ShowPopupUI<UI_Shop>("Prefabs/UI/PopUp/UI_Shop");
+    }
     void RefreshUI(int val)
     {
         int hunger = Managers.Game.Hunger;
