@@ -17,6 +17,8 @@ public class CatController : BaseController
     private Vector3 _targetPosition;
     private SpriteRenderer _spriteRenderer;
 
+    UI_Bubble _currentBubble;
+
     private CatData _myCatData => Managers.Data.CurrentData.MyCat;
 
     public CatState CurrentState
@@ -232,8 +234,31 @@ public class CatController : BaseController
 
     void OnUpdateSleep()
     {
+        if (IsNightTime())
+        {
+            return;
+        }
+        else
+        {
+            if (System.DateTime.Now.Hour == 7 && System.DateTime.Now.Minute < 2)
+            {
+                WakeUp();
+                return;
+            }
+        }
+
         _stateTimer -= Time.deltaTime;
-        if (_stateTimer <= 0) CurrentState = CatState.Idle;
+        if (_stateTimer <= 0)
+        {
+            CurrentState = CatState.Idle;
+            ShowBubble("잘 잤다냥~");
+        }
+    }
+
+    void WakeUp()
+    {
+        CurrentState = CatState.Idle;
+        ShowBubble("좋은 아침이다냥!");
     }
 
     void OnUpdateSleepy()
@@ -263,6 +288,16 @@ public class CatController : BaseController
             return;
         }
 
+        if (IsNightTime())
+        {
+            if (_currentState == CatState.Sleep || _currentState == CatState.Sleepy)
+                return;
+
+            CurrentState = CatState.Sleepy;
+            ShowBubble("잘 시간이네... 졸려...");
+            return;
+        }
+
         int randomDice = Random.Range(0, 100);
 
         if (randomDice < 50)
@@ -270,7 +305,10 @@ public class CatController : BaseController
             SetRandomTargetPosition();
             CurrentState = CatState.Walk;
         }
-        else if (randomDice < 70) CurrentState = CatState.Sleepy;
+        else if (randomDice<70)
+            CurrentState = CatState.Sleepy;
+
+
         else if (randomDice < 80) CurrentState = CatState.Play;
         else CurrentState = CatState.Idle;
     }
@@ -287,16 +325,21 @@ public class CatController : BaseController
     {
 
         string finalMsg = Managers.Game.GetFinalMessage(message);
-        GameObject go = Managers.Object.SpawnEffect("UI/UI_Bubble", transform.position + new Vector3(0, 1.5f, 0), transform);
 
+        if (_currentBubble != null && _currentBubble.gameObject.activeSelf)
+        {
+            _currentBubble.SetText(finalMsg);
+            return; 
+        }
+
+        GameObject go = Managers.Object.SpawnEffect("UI/UI_Bubble", transform.position,transform);
         if (go != null)
         {
-            UI_Bubble bubble = go.GetComponent<UI_Bubble>();
-
-            if (bubble != null)
+            _currentBubble = go.GetComponent<UI_Bubble>(); 
+            if (_currentBubble != null)
             {
-                bubble.Init(transform);
-                bubble.SetText(finalMsg);
+                _currentBubble.Init(transform);
+                _currentBubble.SetText(finalMsg);
             }
         }
     }
@@ -317,7 +360,12 @@ public class CatController : BaseController
     {
         Managers.Game.ProcessChat("주인이 나를 쓰다듬어줬어. 기분이 어때?");
     }
+    bool IsNightTime()
+    {
+        int currentHour = System.DateTime.Now.Hour; 
 
+        return (currentHour >= 23 || currentHour < 7);
+    }
     void TryRandomSpeech()
     {
         _speechTimer += Time.deltaTime;

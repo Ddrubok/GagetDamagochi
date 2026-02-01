@@ -1,66 +1,63 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class UI_Bubble : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _text;
-    [SerializeField] private Vector3 _offset = new Vector3(0, 2.0f, 0); // 머리 위 높이
+    [SerializeField] private Vector3 _offset = new Vector3(0, 2.0f, 0);
     [SerializeField] private float _padding = 0.1f;
 
-    private Transform _target; // 따라다닐 대상 (고양이)
+    private Transform _target;
     private Camera _mainCam;
     private RectTransform _rectTransform;
+    private Coroutine _coDespawn; // 실행 중인 코루틴 저장용
 
-    bool _enabled = false;
-    public void Init(Transform _tr)
+    // 풀링에서 재사용될 때 호출됨 (OnEnable 등을 써도 되지만 Init으로 통일)
+    public void Init(Transform target)
     {
-        if (_enabled)
-            return;
-
-        _enabled = true;
-
-        _target = _tr;
+        _target = target;
         _mainCam = Camera.main;
         _rectTransform = GetComponent<RectTransform>();
+
+        // 피벗 초기화
+        if (_rectTransform != null)
+            _rectTransform.pivot = new Vector2(0.5f, 0f);
     }
 
     public void SetText(string message)
     {
         _text.text = message;
 
-        StartCoroutine(CoDespawn(3.0f));
+        // ★ 핵심: 이미 사라지는 타이머가 돌고 있다면 취소하고 다시 시작!
+        if (_coDespawn != null)
+        {
+            StopCoroutine(_coDespawn);
+        }
+        _coDespawn = StartCoroutine(CoDespawn(3.0f));
     }
-
 
     IEnumerator CoDespawn(float time)
     {
         yield return new WaitForSeconds(time);
 
+        _coDespawn = null; // 코루틴 끝남 표시
         Managers.Object.Despawn(gameObject);
     }
+
     void LateUpdate()
     {
         if (_target == null) return;
 
-        // 1. 고양이 위치 따라가기 (기본)
+        // ... (기존 위치 및 피벗 계산 로직 동일) ...
         transform.position = _target.position + _offset;
 
-        // 2. 고양이가 화면의 어디에 있는지 확인 (0:왼쪽 끝, 1:오른쪽 끝)
         Vector3 viewportPos = _mainCam.WorldToViewportPoint(_target.position);
+        float targetPivotX = 0.5f;
 
-        // 3. 스마트 피벗 변경 (핵심!)
-        // 화면 오른쪽(0.8 이상)에 있으면 -> 피벗을 오른쪽(1)으로 설정 -> 말풍선이 왼쪽으로 자라남
-        // 화면 왼쪽(0.2 이하)에 있으면 -> 피벗을 왼쪽(0)으로 설정 -> 말풍선이 오른쪽으로 자라남
-        // 그 외(가운데) -> 피벗을 가운데(0.5)
+        if (viewportPos.x > 0.8f) targetPivotX = 1.0f;
+        else if (viewportPos.x < 0.2f) targetPivotX = 0.0f;
 
-        float targetPivotX = 0.5f; // 기본 가운데
-
-        if (viewportPos.x > 0.8f) targetPivotX = 1.0f;      // 오른쪽 벽 근처
-        else if (viewportPos.x < 0.2f) targetPivotX = 0.0f; // 왼쪽 벽 근처
-
-        // 부드럽게 변경하고 싶다면 Lerp를 쓰지만, 글자가 흔들릴 수 있으니 바로 대입 추천
-        _rectTransform.pivot = new Vector2(targetPivotX, 0f); // Y는 0(아래) 고정
+        _rectTransform.pivot = new Vector2(targetPivotX, 0f);
     }
 }

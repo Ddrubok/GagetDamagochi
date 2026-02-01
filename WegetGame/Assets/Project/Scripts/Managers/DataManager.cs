@@ -39,7 +39,6 @@ public class DataManager
     public void SaveGame()
     {
         CurrentData.MyCat.LastExitTime = System.DateTime.Now.ToString();
-
         string json = JsonUtility.ToJson(CurrentData, true);
         File.WriteAllText(_path, json);
 

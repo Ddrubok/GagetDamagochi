@@ -49,13 +49,8 @@ public class ObjectManager
         return controller;
     }
 
-    // ==========================================================
-    // 이펙트/UI 소환 (SpawnEffect)
-    // ==========================================================
-    // duration은 이제 여기서 쓰지 않습니다. (각 스크립트가 스스로 반납해야 함)
     public GameObject SpawnEffect(string prefabName, Vector3 position, Transform parent = null)
     {
-        // 1. 풀링으로 가져오기
         GameObject go = SpawnGameObject(prefabName, position, parent,false);
 
         if (go == null)
@@ -63,10 +58,6 @@ public class ObjectManager
             Debug.LogError($"[ObjectManager] 이펙트 소환 실패: {prefabName}");
             return null;
         }
-
-        // 이펙트는 보통 DicGameObject에 ID로 등록할 필요가 없어서 생략합니다.
-        // (필요하다면 위 Spawn<T>처럼 등록해도 됩니다)
-
         return go;
     }
 
