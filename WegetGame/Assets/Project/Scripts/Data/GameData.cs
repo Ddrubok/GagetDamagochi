@@ -8,7 +8,9 @@ public class GameData
     // ==========================================
     // 1. 계정(집사) 정보 (유저가 가진 재산)
     // ==========================================
-    public int Gold = 0;              // 재화 (캔, 골드 등)
+    public long Gold = 0;              // 재화 (캔, 골드 등)
+    public int GoldAmountLevel = 1; // 수익 레벨
+    public int GoldSpeedLevel = 1;  // 속도 레벨
     public bool IsBgmOn = true;       // 설정: 배경음악
     public bool IsSfxOn = true;       // 설정: 효과음
 

@@ -8,7 +8,9 @@ public class UI_Shop : UI_Popup
     {
         BtnClose,       // 닫기 버튼
         BtnUpgrade,     // 터치 강화 버튼
-        BtnTranslator   // 번역기 구매 버튼
+        BtnTranslator,   // 번역기 구매 버튼
+        BtnUpgradeAmount, // 수익 강화
+        BtnUpgradeSpeed   // 속도 강화
     }
 
     //enum Texts
@@ -17,7 +19,17 @@ public class UI_Shop : UI_Popup
     //    TextLevelInfo,      // 레벨 정보 ("터치 강화 Lv.1")
     //    TextUpgradeCost,    // 강화 가격
     //    TextTranslatorCost, // 번역기 가격 ("5000 G" or "구매 완료")
-    //    TextTranslatorName  // 번역기 상품명 (혹시 텍스트 바꿀 일 있으면)
+    //    TextTranslatorName,  // 번역기 상품명 (혹시 텍스트 바꿀 일 있으면)
+
+    //    //수익 강화 정보
+    //    TextAmountLv,     // "수익 강화 Lv.5"
+    //    TextAmountDesc,   // "현재: 5원 / 1회"
+    //    TextAmountCost,   // "가격: 500 G"
+
+    //    // 속도 강화 정보
+    //    TextSpeedLv,      // "속도 강화 Lv.3"
+    //    TextSpeedDesc,    // "현재: 58초마다"
+    //    TextSpeedCost     // "가격: 800 G"
     //}
 
     // 2. 초기화 (Start 대신 Init 사용)
@@ -34,6 +46,9 @@ public class UI_Shop : UI_Popup
         GetButton((int)Buttons.BtnClose).gameObject.BindEvent((evt) => OnClose());
         GetButton((int)Buttons.BtnUpgrade).gameObject.BindEvent((evt) => OnClickUpgrade());
         GetButton((int)Buttons.BtnTranslator).gameObject.BindEvent((evt) => OnClickTranslator());
+
+        GetButton((int)Buttons.BtnUpgradeAmount).gameObject.BindEvent((evt) => OnClickAmountUp());
+        GetButton((int)Buttons.BtnUpgradeSpeed).gameObject.BindEvent((evt) => OnClickSpeedUp());
 
         // 초기 UI 갱신
         RefreshUI();
@@ -58,8 +73,8 @@ public class UI_Shop : UI_Popup
         int level = Managers.Game.ClickLevel;
         int upCost = Managers.Game.UpgradeCost;
 
-       // GetTextMesh((int)Texts.TextLevelInfo).text = $"터치 강화 (Lv.{level})";
-       // GetTextMesh((int)Texts.TextUpgradeCost).text = $"{upCost:N0} G";
+        // GetTextMesh((int)Texts.TextLevelInfo).text = $"터치 강화 (Lv.{level})";
+        // GetTextMesh((int)Texts.TextUpgradeCost).text = $"{upCost:N0} G";
 
         // 돈 부족하면 버튼 비활성화 (반투명 처리 등은 버튼 Transition 설정 따름)
         GetButton((int)Buttons.BtnUpgrade).interactable = (Managers.Data.CurrentData.Gold >= upCost);
@@ -69,7 +84,7 @@ public class UI_Shop : UI_Popup
         if (Managers.Game.HasTranslator)
         {
             // 이미 구매함
-           // GetTextMesh((int)Texts.TextTranslatorCost).text = "구매 완료";
+            // GetTextMesh((int)Texts.TextTranslatorCost).text = "구매 완료";
             GetButton((int)Buttons.BtnTranslator).interactable = false;
         }
         else
@@ -78,6 +93,23 @@ public class UI_Shop : UI_Popup
             //GetTextMesh((int)Texts.TextTranslatorCost).text = $"{transCost:N0} G";
             GetButton((int)Buttons.BtnTranslator).interactable = (Managers.Data.CurrentData.Gold >= transCost);
         }
+
+        int amtLv = Managers.Data.CurrentData.GoldAmountLevel;
+        long amtCost = Managers.Game.CostAmountUpgrade;
+
+        //GetTextMesh((int)Texts.TextAmountLv).text = $"수익 강화 (Lv.{amtLv})";
+        //GetTextMesh((int)Texts.TextAmountDesc).text = $"현재: {Managers.Game.CurrentGoldAmount}G / 회";
+        //GetTextMesh((int)Texts.TextAmountCost).text = $"{amtCost:N0} G";
+        GetButton((int)Buttons.BtnUpgradeAmount).interactable = (Managers.Data.CurrentData.Gold >= amtCost);
+
+        // 3. 속도 강화 UI
+        int spdLv = Managers.Data.CurrentData.GoldSpeedLevel;
+        long spdCost = Managers.Game.CostSpeedUpgrade;
+
+        //GetTextMesh((int)Texts.TextSpeedLv).text = $"속도 강화 (Lv.{spdLv})";
+        //GetTextMesh((int)Texts.TextSpeedDesc).text = $"현재: {Managers.Game.CurrentGoldInterval:F1}초마다";
+        //GetTextMesh((int)Texts.TextSpeedCost).text = $"{spdCost:N0} G";
+        GetButton((int)Buttons.BtnUpgradeSpeed).interactable = (Managers.Data.CurrentData.Gold >= spdCost);
     }
 
     // 4. 기능 구현
@@ -102,6 +134,17 @@ public class UI_Shop : UI_Popup
         }
     }
 
+    void OnClickAmountUp()
+    {
+        if (Managers.Game.TryUpgradeAmount()) 
+            RefreshUI();
+    }
+
+    void OnClickSpeedUp()
+    {
+        if (Managers.Game.TryUpgradeSpeed()) 
+            RefreshUI();
+    }
     void OnClose()
     {
         // UI_Popup의 닫기 기능 활용

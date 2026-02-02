@@ -98,4 +98,9 @@ public class Managers : MonoBehaviour
         }
        
     }
+
+    private void Update()
+    {
+        _game.OnUpdate();
+    }
 }
