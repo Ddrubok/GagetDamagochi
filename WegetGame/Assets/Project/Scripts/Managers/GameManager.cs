@@ -310,10 +310,16 @@ Role-play strictly as a real cat.
 - Age: {Level} years old
 - Personality: {personalityDesc} ({MyPersonality})
 
+# Economic Status
+- Your current Love Efficiency: {GetLoveEfficiency() * 100}%
+- If efficiency is over 100%, you are very helpful and bring more gold to the human.
+- If efficiency is low, you are lazy and don't care about gold.
+
 # Rules
 1. Respond ONLY in **{language}**.
 2. Start with {{HAPPY}} if praised, {{SAD}} if scolded.
 3. Be short and concise.
+4. Mention your helpfulness if Love Efficiency is high.
 
 Make the human feel like they are talking to a real cat.
 ";
@@ -361,10 +367,10 @@ Make the human feel like they are talking to a real cat.
 
     void EarnGoldAuto()
     {
-        long amount = CurrentGoldAmount;
-        Managers.Data.CurrentData.Gold += amount;
+        long baseAmount = CurrentGoldAmount;
+        long finalAmount = (long)(baseAmount * GetLoveEfficiency());
 
-
+        Managers.Data.CurrentData.Gold += finalAmount;
     }
 
 
@@ -421,7 +427,7 @@ Make the human feel like they are talking to a real cat.
 
             // 3. 효율 적용 (50%)
             long rawGold = count * CurrentGoldAmount;
-            long finalGold = (long)(rawGold * 0.5f);
+            long finalGold = (long)(rawGold * GetLoveEfficiency());
 
             if (finalGold > 0)
             {
@@ -434,5 +440,16 @@ Make the human feel like they are talking to a real cat.
             return finalGold;
         }
         return 0;
+    }
+
+    public float GetLoveEfficiency()
+    {
+        // return 1.0f; 
+
+        int score = LoveScore; 
+
+        float efficiency = 0.5f + (score * 0.01f);
+
+        return Mathf.Clamp(efficiency, 0.5f, 2.0f);
     }
 }
