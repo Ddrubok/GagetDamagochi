@@ -61,6 +61,7 @@ public class UI_Main : UI_Scene
 
         RefreshUI(0);
 
+        StartCoroutine(CoCheckOfflineReward());
         return true;
     }
 
@@ -126,6 +127,21 @@ public class UI_Main : UI_Scene
     {
         // 0~100 값을 0.0~1.0 (Slider 범위)으로 변환
         _hungerSlider.value = value / 100.0f;
+    }
+
+    IEnumerator CoCheckOfflineReward()
+    {
+        yield return new WaitForSeconds(1.0f); // 씬 로딩 후 잠시 대기
+
+        long earnedGold = Managers.Game.CalculateOfflineGold();
+        if (earnedGold > 0)
+        {
+            string message = $"집사야! 자는 동안\n{earnedGold:N0} 골드나 벌어왔다냥!\n(효율 50% 적용)";
+            ShowBubble(message, 5.0f);
+
+            // 골드 텍스트 갱신 (UI_Main에 골드 텍스트 업데이트 로직이 필요함)
+            // RefreshGoldUI(); 
+        }
     }
 
     // 오브젝트가 파괴될 때 구독 해제 (에러 방지)

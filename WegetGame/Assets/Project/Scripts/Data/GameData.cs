@@ -11,6 +11,9 @@ public class GameData
     public long Gold = 0;              // 재화 (캔, 골드 등)
     public int GoldAmountLevel = 1; // 수익 레벨
     public int GoldSpeedLevel = 1;  // 속도 레벨
+
+    public string LastAppExitTime = "";
+
     public bool IsBgmOn = true;       // 설정: 배경음악
     public bool IsSfxOn = true;       // 설정: 효과음
 

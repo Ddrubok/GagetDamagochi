@@ -241,8 +241,10 @@ string lastTimeStr = _catData.LastExitTime;
     {
         if (Widget != null)
             Widget.SendToWidget(CurrentState.ToString(), "잘 있었냥?", LoveScore);
-
+        SaveExitTime();
         Managers.Data.SaveGame();
+
+       
     }
 
     public void OnReceiveVoice(string text)
@@ -390,5 +392,47 @@ Make the human feel like they are talking to a real cat.
             return true;
         }
         return false;
+    }
+
+    public void SaveExitTime()
+    {
+        Managers.Data.CurrentData.LastAppExitTime = DateTime.Now.ToString();
+    }
+
+    public long CalculateOfflineGold()
+    {
+        string lastTimeStr = Managers.Data.CurrentData.LastAppExitTime;
+        if (string.IsNullOrEmpty(lastTimeStr)) return 0;
+
+        if (DateTime.TryParse(lastTimeStr, out DateTime lastTime))
+        {
+            TimeSpan timeDiff = DateTime.Now - lastTime;
+            double totalSeconds = timeDiff.TotalSeconds;
+
+            if (totalSeconds < 10) return 0; // 최소 10초는 지나야 보상
+
+            // 1. 최대 시간 제한 (8시간)
+            double maxSeconds = 8 * 60 * 60;
+            if (totalSeconds > maxSeconds) totalSeconds = maxSeconds;
+
+            // 2. 수익 계산 (현재 업그레이드 수치 반영)
+            float interval = CurrentGoldInterval; // 60s - (Level-1)
+            long count = (long)(totalSeconds / interval);
+
+            // 3. 효율 적용 (50%)
+            long rawGold = count * CurrentGoldAmount;
+            long finalGold = (long)(rawGold * 0.5f);
+
+            if (finalGold > 0)
+            {
+                Managers.Data.CurrentData.Gold += finalGold;
+                // 보상을 받은 후 시간 데이터 초기화 (중복 수령 방지)
+                Managers.Data.CurrentData.LastAppExitTime = DateTime.Now.ToString();
+                Save();
+            }
+
+            return finalGold;
+        }
+        return 0;
     }
 }

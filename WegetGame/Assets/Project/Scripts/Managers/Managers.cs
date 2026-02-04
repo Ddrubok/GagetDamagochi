@@ -83,7 +83,8 @@ public class Managers : MonoBehaviour
     {
         if (pause)
         {
-            Game.Save(); 
+            Game.Save();
+           
         }
     }
 
