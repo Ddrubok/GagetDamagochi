@@ -77,7 +77,7 @@ public class UI_Shop : UI_Popup
         // GetTextMesh((int)Texts.TextUpgradeCost).text = $"{upCost:N0} G";
 
         // 돈 부족하면 버튼 비활성화 (반투명 처리 등은 버튼 Transition 설정 따름)
-        GetButton((int)Buttons.BtnUpgrade).interactable = (Managers.Data.CurrentData.Gold >= upCost);
+        GetButton((int)Buttons.BtnUpgrade).interactable = (Managers.Game.Gold >= upCost);
 
 
         // --- 아이템 2: 번역기 ---
@@ -91,7 +91,7 @@ public class UI_Shop : UI_Popup
         {
             int transCost = 5000;
             //GetTextMesh((int)Texts.TextTranslatorCost).text = $"{transCost:N0} G";
-            GetButton((int)Buttons.BtnTranslator).interactable = (Managers.Data.CurrentData.Gold >= transCost);
+            GetButton((int)Buttons.BtnTranslator).interactable = (Managers.Game.Gold >= transCost);
         }
 
         int amtLv = Managers.Data.CurrentData.GoldAmountLevel;
@@ -100,7 +100,7 @@ public class UI_Shop : UI_Popup
         //GetTextMesh((int)Texts.TextAmountLv).text = $"수익 강화 (Lv.{amtLv})";
         //GetTextMesh((int)Texts.TextAmountDesc).text = $"현재: {Managers.Game.CurrentGoldAmount}G / 회";
         //GetTextMesh((int)Texts.TextAmountCost).text = $"{amtCost:N0} G";
-        GetButton((int)Buttons.BtnUpgradeAmount).interactable = (Managers.Data.CurrentData.Gold >= amtCost);
+        GetButton((int)Buttons.BtnUpgradeAmount).interactable = (Managers.Game.Gold >= amtCost);
 
         // 3. 속도 강화 UI
         int spdLv = Managers.Data.CurrentData.GoldSpeedLevel;
@@ -109,7 +109,7 @@ public class UI_Shop : UI_Popup
         //GetTextMesh((int)Texts.TextSpeedLv).text = $"속도 강화 (Lv.{spdLv})";
         //GetTextMesh((int)Texts.TextSpeedDesc).text = $"현재: {Managers.Game.CurrentGoldInterval:F1}초마다";
         //GetTextMesh((int)Texts.TextSpeedCost).text = $"{spdCost:N0} G";
-        GetButton((int)Buttons.BtnUpgradeSpeed).interactable = (Managers.Data.CurrentData.Gold >= spdCost);
+        GetButton((int)Buttons.BtnUpgradeSpeed).interactable = (Managers.Game.Gold >= spdCost);
     }
 
     // 4. 기능 구현

@@ -12,7 +12,8 @@ public class UI_Debug : UI_Popup
         BtnHungerZero,  // 배고픔 0 (아픈 상태 테스트)
         BtnLoveUp,      // 애정도 +10
         BtnLoveDown,    // 애정도 -10
-        BtnSave         // 강제 저장
+        BtnSave  ,       // 강제 저장
+        BtnGoldPlus1000// 골드 1000추가
     }
 
     enum Texts
@@ -36,6 +37,7 @@ public class UI_Debug : UI_Popup
         GetButton((int)Buttons.BtnLoveUp).gameObject.BindEvent((evt) => ChangeLove(10));
         GetButton((int)Buttons.BtnLoveDown).gameObject.BindEvent((evt) => ChangeLove(-10));
         GetButton((int)Buttons.BtnSave).gameObject.BindEvent((evt) => OnSave());
+        GetButton((int)Buttons.BtnGoldPlus1000).gameObject.BindEvent((evt) => PlusGold());
         RefreshInfo();
 
         return true;
@@ -98,5 +100,10 @@ public class UI_Debug : UI_Popup
     void OnSave()
     {
         Managers.Game.Save();
+    }
+
+    void PlusGold()
+    {
+        Managers.Game.Gold += 1000;
     }
 }

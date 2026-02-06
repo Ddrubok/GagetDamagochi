@@ -59,6 +59,28 @@ public class GameManager
         }
     }
 
+
+    public event Action<long> OnGoldChanged;
+
+    public long Gold
+    {
+        get { return Managers.Data.CurrentData.Gold; }
+        set
+        {
+            Managers.Data.CurrentData.Gold = value;
+            OnGoldChanged?.Invoke(value);
+        }
+    }
+
+
+    public void EarnGoldAuto()
+    {
+        long baseAmount = CurrentGoldAmount;
+        long finalAmount = (long)(baseAmount * GetLoveEfficiency());
+
+        Gold += finalAmount;
+    }
+
     public int Level
     {
         get { return _catData != null ? _catData.Level : 1; }
@@ -365,13 +387,7 @@ Make the human feel like they are talking to a real cat.
         }
     }
 
-    void EarnGoldAuto()
-    {
-        long baseAmount = CurrentGoldAmount;
-        long finalAmount = (long)(baseAmount * GetLoveEfficiency());
-
-        Managers.Data.CurrentData.Gold += finalAmount;
-    }
+  
 
 
     public bool TryUpgradeAmount()

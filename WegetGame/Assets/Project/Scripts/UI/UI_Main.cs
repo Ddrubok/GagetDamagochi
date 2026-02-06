@@ -31,7 +31,8 @@ public class UI_Main : UI_Scene
         OnionDebug,
         Status,
         VoiceDebug,
-        TextBubble
+        TextBubble,
+        GoldText
     }
 
     enum InputFields
@@ -54,6 +55,12 @@ public class UI_Main : UI_Scene
         _hungerSlider = GetSlider((int)Sliders.HungerSlider);
         Managers.Game.OnHungerChanged += RefreshUI;
         Managers.Game.OnLoveScoreChanged += RefreshUI;
+
+        Managers.Game.OnGoldChanged -= UpdateGoldUI;
+        Managers.Game.OnGoldChanged += UpdateGoldUI;
+
+        // 초기 수치 세팅
+        UpdateGoldUI(Managers.Game.Gold);
 
         UpdateHungerUI(Managers.Game.Hunger);
 
@@ -78,7 +85,10 @@ public class UI_Main : UI_Scene
 
         Get<TMP_InputField>((int)InputFields.Input).text = "";
     }
-
+    void UpdateGoldUI(long currentGold)
+    {
+        GetTextMesh((int)Texts.GoldText).text = $"{currentGold:N0}G";
+    }
     void OnClick_Feed(PointerEventData evt)
     {
         Managers.Game.Hunger += 30; GetTextMesh((int)Texts.OnionDebug).text = "냠냠! 밥 맛있다냥!";
@@ -137,7 +147,8 @@ public class UI_Main : UI_Scene
         if (earnedGold > 0)
         {
             string message = $"집사야! 자는 동안\n{earnedGold:N0} 골드나 벌어왔다냥!\n(효율 50% 적용)";
-            ShowBubble(message, 5.0f);
+            // ShowBubble(message, 5.0f);
+            Managers.Game.MyCat.ShowBubble(message);
 
             // 골드 텍스트 갱신 (UI_Main에 골드 텍스트 업데이트 로직이 필요함)
             // RefreshGoldUI(); 
@@ -148,7 +159,11 @@ public class UI_Main : UI_Scene
     void OnDestroy()
     {
         if (Managers.Instance != null)
+        {
             Managers.Game.OnHungerChanged -= UpdateHungerUI;
+            Managers.Game.OnGoldChanged -= UpdateGoldUI;
+        }
+          
     }
 
 }
