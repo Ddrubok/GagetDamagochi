@@ -144,17 +144,17 @@ public class GameManager
     public void EarnGoldByClick()
     {
         int amount = GoldPerClick;
-        Managers.Data.CurrentData.Gold += amount;
+        Gold += amount;
 
-        Debug.Log($"골드 획득! +{amount} (현재: {Managers.Data.CurrentData.Gold})");
+        Debug.Log($"골드 획득! +{amount} (현재: {Gold})");
     }
 
     public bool TryUpgradeClick()
     {
         int cost = UpgradeCost;
-        if (Managers.Data.CurrentData.Gold >= cost)
+        if (Gold >= cost)
         {
-            Managers.Data.CurrentData.Gold -= cost;
+            Gold -= cost;
             ClickLevel++;
             Debug.Log($"레벨업 성공! Lv.{ClickLevel}");
             Save(); return true;
@@ -169,9 +169,9 @@ public class GameManager
     public bool TryBuyTranslator()
     {
         int cost = 5000; if (HasTranslator) return false;
-        if (Managers.Data.CurrentData.Gold >= cost)
+        if (Gold >= cost)
         {
-            Managers.Data.CurrentData.Gold -= cost;
+            Gold -= cost;
             HasTranslator = true;
             Debug.Log("번역기 구매 완료! 이제 고양이 말이 들립니다.");
             Save();
@@ -383,7 +383,8 @@ Make the human feel like they are talking to a real cat.
 
         if (_timer >= CurrentGoldInterval)
         {
-            _timer = 0f; EarnGoldAuto();
+            _timer = 0f; 
+            EarnGoldAuto();
         }
     }
 
@@ -393,9 +394,9 @@ Make the human feel like they are talking to a real cat.
     public bool TryUpgradeAmount()
     {
         long cost = CostAmountUpgrade;
-        if (Managers.Data.CurrentData.Gold >= cost)
+        if (Gold >= cost)
         {
-            Managers.Data.CurrentData.Gold -= cost;
+            Gold -= cost;
             Managers.Data.CurrentData.GoldAmountLevel++;
             Save();
             return true;
@@ -406,9 +407,9 @@ Make the human feel like they are talking to a real cat.
     public bool TryUpgradeSpeed()
     {
         long cost = CostSpeedUpgrade;
-        if (Managers.Data.CurrentData.Gold >= cost)
+        if (Gold >= cost)
         {
-            Managers.Data.CurrentData.Gold -= cost;
+            Gold -= cost;
             Managers.Data.CurrentData.GoldSpeedLevel++;
             Save();
             return true;

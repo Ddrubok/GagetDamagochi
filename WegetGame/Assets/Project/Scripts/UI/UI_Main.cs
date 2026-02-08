@@ -10,6 +10,9 @@ public class UI_Main : UI_Scene
     [SerializeField] private Slider _hungerSlider;
     [SerializeField] private Text _goldText;
 
+    private Coroutine _goldAnimationCoroutine;
+    private long _currentDisplayGold = 0; 
+
     enum Sliders
     {
         HungerSlider
@@ -59,8 +62,10 @@ public class UI_Main : UI_Scene
         Managers.Game.OnGoldChanged -= UpdateGoldUI;
         Managers.Game.OnGoldChanged += UpdateGoldUI;
 
-        // ÃÊ±â ¼öÄ¡ ¼¼ÆÃ
+
         UpdateGoldUI(Managers.Game.Gold);
+        // ÃÊ±â ¼öÄ¡ ¼¼ÆÃ
+       
 
         UpdateHungerUI(Managers.Game.Hunger);
 
@@ -85,10 +90,36 @@ public class UI_Main : UI_Scene
 
         Get<TMP_InputField>((int)InputFields.Input).text = "";
     }
-    void UpdateGoldUI(long currentGold)
+    void UpdateGoldUI(long targetGold)
     {
-        GetTextMesh((int)Texts.GoldText).text = $"{currentGold:N0}G";
+        if (_goldAnimationCoroutine != null)
+            StopCoroutine(_goldAnimationCoroutine);
+
+        _goldAnimationCoroutine = StartCoroutine(CoAnimateGold(_currentDisplayGold, targetGold));
     }
+
+    IEnumerator CoAnimateGold(long start, long end)
+    {
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            long current = (long)Mathf.Lerp(start, end, t);
+
+            _currentDisplayGold = current;
+            GetTextMesh((int)Texts.GoldText).text = $"{current:N0}G";
+
+            yield return null; 
+        }
+        _currentDisplayGold = end;
+        GetTextMesh((int)Texts.GoldText).text = $"{end:N0}G";
+        _goldAnimationCoroutine = null;
+    }
+
     void OnClick_Feed(PointerEventData evt)
     {
         Managers.Game.Hunger += 30; GetTextMesh((int)Texts.OnionDebug).text = "³È³È! ¹ä ¸ÀÀÖ´Ù³É!";
