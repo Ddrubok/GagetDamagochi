@@ -8,6 +8,7 @@ public class UI_Main : UI_Scene
 {
 
     [SerializeField] private Slider _hungerSlider;
+    [SerializeField] private Slider _goldProgressSlider;
     [SerializeField] private Text _goldText;
 
     private Coroutine _goldAnimationCoroutine;
@@ -15,7 +16,8 @@ public class UI_Main : UI_Scene
 
     enum Sliders
     {
-        HungerSlider
+        HungerSlider,
+        GoldProgressSlider
     }
     enum GameObjects
     {
@@ -35,7 +37,8 @@ public class UI_Main : UI_Scene
         Status,
         VoiceDebug,
         TextBubble,
-        GoldText
+        GoldText,
+        GPSText
     }
 
     enum InputFields
@@ -56,6 +59,7 @@ public class UI_Main : UI_Scene
         GetButton((int)Buttons.BtnDebug).gameObject.BindEvent(OnClickDebug);
         GetButton((int)Buttons.BtnShop).gameObject.BindEvent(OnClickShop);
         _hungerSlider = GetSlider((int)Sliders.HungerSlider);
+        _goldProgressSlider = GetSlider((int)Sliders.GoldProgressSlider);
         Managers.Game.OnHungerChanged += RefreshUI;
         Managers.Game.OnLoveScoreChanged += RefreshUI;
 
@@ -170,6 +174,12 @@ public class UI_Main : UI_Scene
         _hungerSlider.value = value / 100.0f;
     }
 
+    void UpdateGPSText()
+    {
+        long gps = Managers.Game.GoldPerSecond;
+        GetTextMesh((int)Texts.GPSText).text = $"+{gps:N0}/s";
+    }
+
     IEnumerator CoCheckOfflineReward()
     {
         yield return new WaitForSeconds(1.0f); // 씬 로딩 후 잠시 대기
@@ -184,6 +194,16 @@ public class UI_Main : UI_Scene
             // 골드 텍스트 갱신 (UI_Main에 골드 텍스트 업데이트 로직이 필요함)
             // RefreshGoldUI(); 
         }
+    }
+
+    private void Update()
+    {
+        if (_goldProgressSlider!= null)
+        {
+            _goldProgressSlider.value = Managers.Game.GoldProgressRatio;
+        }
+
+        UpdateGPSText();
     }
 
     // 오브젝트가 파괴될 때 구독 해제 (에러 방지)

@@ -72,7 +72,6 @@ public class GameManager
         }
     }
 
-
     public void EarnGoldAuto()
     {
         long baseAmount = CurrentGoldAmount;
@@ -124,6 +123,10 @@ public class GameManager
         get { return Managers.Data.CurrentData.HasTranslator; }
         set { Managers.Data.CurrentData.HasTranslator = value; }
     }
+
+    private float _goldCycleTimer = 0f;
+    private const float GOLD_CYCLE_TIME = 1.0f;
+    public float GoldProgressRatio => Mathf.Clamp01(_goldCycleTimer / GOLD_CYCLE_TIME);
 
     public int GoldPerClick
     {
@@ -266,7 +269,7 @@ string lastTimeStr = _catData.LastExitTime;
         SaveExitTime();
         Managers.Data.SaveGame();
 
-       
+
     }
 
     public void OnReceiveVoice(string text)
@@ -362,15 +365,6 @@ Make the human feel like they are talking to a real cat.
         }
     }
 
-    public long CostAmountUpgrade
-    {
-        get { return (long)(100 * Mathf.Pow(1.5f, Managers.Data.CurrentData.GoldAmountLevel - 1)); }
-    }
-
-    public long CostSpeedUpgrade
-    {
-        get { return (long)(300 * Mathf.Pow(1.6f, Managers.Data.CurrentData.GoldSpeedLevel - 1)); }
-    }
 
     public float TimerRatio
     {
@@ -379,16 +373,16 @@ Make the human feel like they are talking to a real cat.
 
     public void OnUpdate()
     {
-        _timer += Time.deltaTime;
+        _goldCycleTimer += Time.deltaTime;
 
-        if (_timer >= CurrentGoldInterval)
+        if (_goldCycleTimer >= GOLD_CYCLE_TIME)
         {
-            _timer = 0f; 
-            EarnGoldAuto();
+            _goldCycleTimer = 0f;
+            EarnGoldBySecond();
         }
     }
 
-  
+
 
 
     public bool TryUpgradeAmount()
@@ -463,10 +457,42 @@ Make the human feel like they are talking to a real cat.
     {
         // return 1.0f; 
 
-        int score = LoveScore; 
+        int score = LoveScore;
 
         float efficiency = 0.5f + (score * 0.01f);
 
         return Mathf.Clamp(efficiency, 0.5f, 2.0f);
     }
+    public long GoldPerSecond
+    {
+        get
+        {
+            float baseIncome = 50f;
+            float levelBonus = Managers.Data.CurrentData.GoldAmountLevel * 10f;
+            float speedBonus = 1.0f + (Managers.Data.CurrentData.GoldSpeedLevel - 1) * 0.5f;
+
+            return (long)(baseIncome * levelBonus * speedBonus * GetLoveEfficiency());
+        }
+    }
+    public long CostAmountUpgrade
+    {
+        get
+        {
+            return (long)(500 * Mathf.Pow(2.2f, Managers.Data.CurrentData.GoldAmountLevel - 1));
+        }
+    }
+
+    public long CostSpeedUpgrade
+    {
+        get
+        {
+            return (long)(1500 * Mathf.Pow(2.5f, Managers.Data.CurrentData.GoldSpeedLevel - 1));
+        }
+    }
+
+    void EarnGoldBySecond()
+    {
+        Gold += GoldPerSecond;
+    }
+
 }
