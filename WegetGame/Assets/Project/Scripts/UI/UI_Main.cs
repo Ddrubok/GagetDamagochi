@@ -115,12 +115,12 @@ public class UI_Main : UI_Scene
             long current = (long)Mathf.Lerp(start, end, t);
 
             _currentDisplayGold = current;
-            GetTextMesh((int)Texts.GoldText).text = $"{current:N0}G";
+            GetTextMesh((int)Texts.GoldText).text = $"{Util.FormatNumber(current)}";
 
             yield return null; 
         }
         _currentDisplayGold = end;
-        GetTextMesh((int)Texts.GoldText).text = $"{end:N0}G";
+        GetTextMesh((int)Texts.GoldText).text = $"{Util.FormatNumber(end)}";
         _goldAnimationCoroutine = null;
     }
 
@@ -177,7 +177,7 @@ public class UI_Main : UI_Scene
     void UpdateGPSText()
     {
         long gps = Managers.Game.GoldPerSecond;
-        GetTextMesh((int)Texts.GPSText).text = $"+{gps:N0}/s";
+        GetTextMesh((int)Texts.GPSText).text = $"+{Util.FormatNumber(gps)}/s";
     }
 
     IEnumerator CoCheckOfflineReward()

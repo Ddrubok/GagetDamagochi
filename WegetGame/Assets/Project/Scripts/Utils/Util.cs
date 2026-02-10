@@ -143,4 +143,22 @@ public static class Util
 
         return number; 
     }
+
+    private static readonly string[] Units = { "", "K", "M", "B", "T", "Qa", "Qi" };
+
+    public static string FormatNumber(long value)
+    {
+        if (value < 1000) return value.ToString();
+
+        int unitIndex = 0;
+        double doubleValue = value;
+
+        while (doubleValue >= 1000 && unitIndex < Units.Length - 1)
+        {
+            doubleValue /= 1000;
+            unitIndex++;
+        }
+
+        return $"{doubleValue:F1}{Units[unitIndex]}";
+    }
 }
