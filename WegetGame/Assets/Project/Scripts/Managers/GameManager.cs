@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using static Define;
 
 public class GameManager
@@ -12,6 +13,39 @@ public class GameManager
     public CatController MyCat;
 
     private float _timer = 0f;
+    public LocalGemmaManager LocalAI;
+    public bool IsAIReady { get; private set; } = false;
+
+    public void InitLocalAI(Action onSuccess = null, Action<string> onError = null)
+    {
+        GameObject go = Managers.Instance.gameObject;
+        LocalAI = Util.GetOrAddComponent<LocalGemmaManager>(go);
+
+        LocalAI.InitializeLocalLLM(
+            onSuccess: () =>
+            {
+                // 2번 에러 해결: Managers.Object가 아닌 Managers.QueueOnMainThread 사용
+                Managers.QueueOnMainThread(() =>
+                {
+                    IsAIReady = true;
+                    onSuccess?.Invoke(); // LoadingScene으로 '성공' 신호 전달!
+
+                    if (MyCat != null)
+                    {
+                        MyCat.ShowBubble("다마고치 뇌세포 다운로드 완료다냥!");
+                    }
+                });
+            },
+            onError: (err) =>
+            {
+                Managers.QueueOnMainThread(() =>
+                {
+                    Debug.LogError("AI 다운로드/초기화 에러: " + err);
+                    onError?.Invoke(err); // LoadingScene으로 '실패' 신호 전달!
+                });
+            }
+        );
+    }
 
     private CatData _catData
     {

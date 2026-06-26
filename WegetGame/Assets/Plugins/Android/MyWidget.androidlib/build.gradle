@@ -11,3 +11,13 @@ android {
         }
     }
 }
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    
+    // (기존) implementation 'com.google.mediapipe:tasks-genai:0.10.14' <- 삭제
+    
+    // (변경) 프로덕션 앱을 위한 ML Kit GenAI Prompt API 추가
+    implementation 'com.google.mlkit:genai-prompt:1.0.0' 
+    // ※ 또는 LiteRT-LM 의존성을 사용해도 구조는 동일합니다.
+}

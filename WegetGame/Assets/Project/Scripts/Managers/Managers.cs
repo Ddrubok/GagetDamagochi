@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,6 +11,17 @@ public class Managers : MonoBehaviour
     private static Managers s_instance;
 
     private static bool s_isQuitting = false;
+
+    private static ConcurrentQueue<Action> _mainThreadActions = new ConcurrentQueue<Action>();
+
+    // 외부에서 언제든 메인 스레드에 작업을 던질 수 있는 글로벌 함수
+    public static void QueueOnMainThread(Action action)
+    {
+        if (action != null)
+        {
+            _mainThreadActions.Enqueue(action);
+        }
+    }
     public static Managers Instance
     {
         get
@@ -102,6 +115,11 @@ public class Managers : MonoBehaviour
 
     private void Update()
     {
-        _game.OnUpdate();
+        _game?.OnUpdate();
+
+        while (_mainThreadActions.TryDequeue(out Action action))
+        {
+            action?.Invoke();
+        }
     }
 }
